@@ -11,8 +11,8 @@ export async function signUp(req, res) {
     try {
         await db.query(`
         INSERT INTO users 
-        (email, password, username, pictureUrl) 
-        VALUES ($1, $2, $3);
+        (email, password, username, "pictureUrl") 
+        VALUES ($1, $2, $3, $4);
         `, [email, passwordHash, username, pictureUrl])
 
         res.status(201).send("Created.")
@@ -41,7 +41,7 @@ export async function signIn(req, res) {
 
             await db.query(`
             INSERT INTO sessions 
-            (user_id, token) 
+            ("userId", token) 
             VALUES ($1, $2);
             `, [userInfo.rows[0].id, token])
 
