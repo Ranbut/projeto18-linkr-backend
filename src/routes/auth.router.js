@@ -4,8 +4,8 @@ import { signUpSchemaValidation, signInSchemaValidation } from '../middlewares/a
 
 const authRouter = Router()
 
-authRouter.post("/signup", signUpSchemaValidation, signUp)
-authRouter.post("/signin",signInSchemaValidation ,signIn)
+authRouter.post("/sign-up", signUpSchemaValidation, signUp)
+authRouter.post("/sign-in",signInSchemaValidation ,signIn)
 
 
 export default authRouter
