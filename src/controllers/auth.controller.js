@@ -58,3 +58,29 @@ export async function signIn(req, res) {
 
 
 }
+
+export async function logOut(req, res) {
+
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "");
+
+    if (!token) {
+        res.sendStatus(401);
+        return;
+    }
+
+    try {
+        const logout = await db.query(`
+        DELETE 
+        FROM sessions 
+        WHERE token = $1;
+        `, [token])
+       
+        res.status(201).send("logout")
+    }
+    catch (err) {
+        res.status(422).send(err.message)
+    }
+
+
+}
