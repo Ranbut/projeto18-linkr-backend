@@ -61,8 +61,7 @@ export async function signIn(req, res) {
 
 export async function logOut(req, res) {
 
-    const { authorization } = req.headers;
-    const token = authorization?.replace("Bearer ", "");
+    const { token } = req.body
 
     if (!token) {
         res.sendStatus(401);
@@ -81,6 +80,5 @@ export async function logOut(req, res) {
     catch (err) {
         res.status(422).send(err.message)
     }
-
 
 }
