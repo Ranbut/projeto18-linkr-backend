@@ -11,7 +11,7 @@ export async function signUp(req, res) {
     try {
         await db.query(`
         INSERT INTO users 
-        (email, password, "userName", "pictureUrl") 
+        (email, password, "username", "pictureUrl") 
         VALUES ($1, $2, $3, $4);
         `, [email, passwordHash, username, pictureUrl])
 
@@ -94,7 +94,7 @@ export async function GetUserByToken(req, res) {
 
     try {
         const userInfo = await db.query(`
-        SELECT userGroup."userName", userGroup."pictureUrl"
+        SELECT userGroup."username", userGroup."pictureUrl"
         FROM "sessions"
         LEFT JOIN "users" AS userGroup
         ON "sessions"."userId" = userGroup."id"
