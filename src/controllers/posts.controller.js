@@ -46,7 +46,7 @@ export async function pushPost(req, res) {
 
         const header = authorization.split(' ');
         const bearer = header[1];
-        const userId = (await db.query(`SELECT id FROM sessions WHERE token=$1;`, [bearer])).rows[0].id;
+        const userId = (await db.query(`SELECT "userId" FROM sessions WHERE token=$1;`, [bearer])).rows[0].userId;
 
         await db.query(`INSERT INTO "posts" ("userId" , "message", "link") VALUES ($1, $2, $3);`, [userId ,message, link]);
 

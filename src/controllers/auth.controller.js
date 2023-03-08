@@ -85,7 +85,7 @@ export async function logOut(req, res) {
 
 export async function GetUserByToken(req, res) {
 
-    const { token } = req.body
+    const { token } = req.body;
 
     if (!token) {
         res.sendStatus(401);
@@ -101,7 +101,7 @@ export async function GetUserByToken(req, res) {
         WHERE token = $1;
         `, [token])
        
-        res.status(201).send(userInfo.rows[0])
+        res.status(200).send(userInfo.rows[0])
     }
     catch (err) {
         res.status(422).send(err.message)
