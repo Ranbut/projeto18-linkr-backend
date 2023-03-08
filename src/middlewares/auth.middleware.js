@@ -22,7 +22,7 @@ export async function signUpSchemaValidation (req, res, next){
         return
     }
 
-    const usernameExists = await db.query(`SELECT * FROM users WHERE username=$1`, [user.username])
+    const usernameExists = await db.query(`SELECT * FROM users WHERE "userName"=$1`, [user.username])
 
     if (
         usernameExists.rowCount!==0
