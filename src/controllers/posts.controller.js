@@ -1,3 +1,4 @@
+import urlMetadata from 'url-metadata';
 import { db } from '../database/database.connection.js'
 
 export async function getPost(req, res) {
@@ -9,7 +10,30 @@ export async function getPost(req, res) {
             ON "posts"."userId" = userGroup."id";
         `);
 
-        res.status(200).send(posts.rows);
+        const result = posts.rows;
+
+        const createSendObj = async (result) => {
+            const output = await Promise.all(result.map(async (o) => {
+              try {
+                const metadata = await urlMetadata(o.link);
+                return {
+                  ...o,
+                  linkTitle: metadata.title,
+                  linkImage: metadata.image,
+                  linkDescription: metadata.description
+                };
+              } catch (error) {
+                console.log(error);
+              }
+            }));
+            return output;
+          };
+
+        
+        const sendObj = await createSendObj(result);
+
+        res.status(200).send(sendObj);
+
     } catch (err) {
         res.status(422).send(err.message);
     }
