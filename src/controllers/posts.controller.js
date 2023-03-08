@@ -4,7 +4,7 @@ import { db } from '../database/database.connection.js'
 export async function getPost(req, res) {
     try {
         const posts = await db.query(`
-            SELECT userGroup."userName", userGroup."pictureUrl", message, link, "posts".id
+            SELECT userGroup."username", userGroup."pictureUrl", message, link, "posts".id
             FROM "posts"
             LEFT JOIN "users" AS userGroup
             ON "posts"."userId" = userGroup."id"
