@@ -7,7 +7,8 @@ export async function getPost(req, res) {
             SELECT userGroup."userName", userGroup."pictureUrl", message, link, "posts".id
             FROM "posts"
             LEFT JOIN "users" AS userGroup
-            ON "posts"."userId" = userGroup."id";
+            ON "posts"."userId" = userGroup."id"
+            ORDER BY posts."createdAt" DESC LIMIT 20;
         `);
 
         const result = posts.rows;
