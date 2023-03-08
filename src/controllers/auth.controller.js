@@ -11,7 +11,7 @@ export async function signUp(req, res) {
     try {
         await db.query(`
         INSERT INTO users 
-        (email, password, "userName", "pictureUrl") 
+        (email, password, username, "pictureUrl") 
         VALUES ($1, $2, $3, $4);
         `, [email, passwordHash, username, pictureUrl])
 
@@ -76,32 +76,6 @@ export async function logOut(req, res) {
         `, [token])
        
         res.status(201).send("logout")
-    }
-    catch (err) {
-        res.status(422).send(err.message)
-    }
-
-}
-
-export async function GetUserByToken(req, res) {
-
-    const { token } = req.body
-
-    if (!token) {
-        res.sendStatus(401);
-        return;
-    }
-
-    try {
-        const userInfo = await db.query(`
-        SELECT userGroup."userName", userGroup."pictureUrl"
-        FROM "sessions"
-        LEFT JOIN "users" AS userGroup
-        ON "sessions"."userId" = userGroup."id"
-        WHERE token = $1;
-        `, [token])
-       
-        res.status(201).send(userInfo.rows[0])
     }
     catch (err) {
         res.status(422).send(err.message)
