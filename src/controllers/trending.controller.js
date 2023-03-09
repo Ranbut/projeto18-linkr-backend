@@ -24,10 +24,12 @@ export async function getPostByHashtag(req, res) {
 
     try {
         const { rows: posts } = await db.query(`
-            SELECT *
+            SELECT userGroup."username", userGroup."pictureUrl", message, link, "posts".id
             FROM "posts"
-            WHERE message LIKE $1
-            ORDER BY "createdAt" DESC
+            LEFT JOIN "users" AS userGroup
+            ON "posts"."userId" = userGroup."id"
+            WHERE "posts".message LIKE $1
+            ORDER BY posts."createdAt" DESC
         `, [hashtag]);
 
         return res.send(posts);
