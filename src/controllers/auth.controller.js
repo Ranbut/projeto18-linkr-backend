@@ -2,6 +2,7 @@ import { db } from '../database/database.connection.js'
 import { signInUser } from '../repository/auth.repository.js';
 import bcrypt from "bcrypt";
 import { v4 as uuidV4 } from "uuid";
+import { createSession, createUser, getUserInfo, toLogOut } from '../repositories/auth.repository.js';
 
 export async function signUp(req, res) {
 
@@ -10,11 +11,7 @@ export async function signUp(req, res) {
     const passwordHash = bcrypt.hashSync(password, 10);
 
     try {
-        await db.query(`
-        INSERT INTO users 
-        (email, password, "username", "pictureUrl") 
-        VALUES ($1, $2, $3, $4);
-        `, [email, passwordHash, username, pictureUrl])
+        await createUser({ email, passwordHash, username, pictureUrl })
 
         res.status(201).send("Created.")
     }
@@ -46,12 +43,8 @@ export async function logOut(req, res) {
     }
 
     try {
-        const logout = await db.query(`
-        DELETE 
-        FROM sessions 
-        WHERE token = $1;
-        `, [token])
-       
+        await toLogOut({ token })
+
         res.status(201).send("logout")
     }
     catch (err) {
@@ -62,7 +55,7 @@ export async function logOut(req, res) {
 
 export async function GetUserByToken(req, res) {
 
-    const { token } = req.body;
+    const { token } = req.body
 
     if (!token) {
         res.sendStatus(401);
@@ -71,14 +64,14 @@ export async function GetUserByToken(req, res) {
 
     try {
         const userInfo = await db.query(`
-        SELECT userGroup."username", userGroup."pictureUrl"
+        SELECT userGroup."userName", userGroup."pictureUrl"
         FROM "sessions"
         LEFT JOIN "users" AS userGroup
         ON "sessions"."userId" = userGroup."id"
         WHERE token = $1;
         `, [token])
-       
-        res.status(200).send(userInfo.rows[0])
+
+        res.status(201).send(userInfo.rows[0])
     }
     catch (err) {
         res.status(422).send(err.message)
