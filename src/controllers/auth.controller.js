@@ -1,8 +1,7 @@
 import { db } from '../database/database.connection.js'
-import { signInUser } from '../repository/auth.repository.js';
+import { signInUser, createUser, toLogOut } from '../repository/auth.repository.js';
 import bcrypt from "bcrypt";
 import { v4 as uuidV4 } from "uuid";
-import { createSession, createUser, getUserInfo, toLogOut } from '../repositories/auth.repository.js';
 
 export async function signUp(req, res) {
 

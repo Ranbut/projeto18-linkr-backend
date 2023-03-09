@@ -78,3 +78,20 @@ export async function signInUser(_session){
 
     } catch(err){return resp.direct(500, err.message)}
 }
+
+export async function createUser({ email, passwordHash, username, pictureUrl }) {
+    return await db.query(`
+        INSERT INTO users 
+        (email, password, username, "pictureUrl") 
+        VALUES ($1, $2, $3, $4);
+        `, [email, passwordHash, username, pictureUrl])
+}
+
+export async function toLogOut({ token }) {
+    return await db.query(`
+        DELETE 
+        FROM sessions 
+        WHERE token = $1;
+        `, [token])
+
+}
