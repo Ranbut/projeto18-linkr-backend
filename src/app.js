@@ -11,8 +11,12 @@ app.use(cors());
 import authRouter from './routes/auth.router.js';
 import postsRouter from './routes/posts.router.js';
 import trendingRoutes from './routes/trending.routes.js';
+import sessionRefresh from './session.js';
 
 app.use ([authRouter, postsRouter, trendingRoutes]);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running in port ${port}.`));
+
+
+sessionRefresh(45, 2.5, 'seconds')
