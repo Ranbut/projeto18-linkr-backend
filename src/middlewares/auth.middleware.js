@@ -1,66 +1,33 @@
 import { signUpSchema, signInSchema } from "../schemas/auth.schema.js";
-import { db } from "../database/database.connection.js";
+import { schemaValidation } from "./generics.middleware.js";
+import { checkUser, checkUserAlreadyExists } from "../repository/auth.repository.js";
+
 
 export async function signUpSchemaValidation (req, res, next){
-    
     const user = req.body
+    
+    {const { code, message } = schemaValidation(signUpSchema, user)
+    if(code){return res.status(code).send(message)}}
 
-    const validation = signUpSchema.validate(user, {abortEarly: false})
-
-    if (validation.error){
-        const errors = validation.error.details.map((detail) => detail.message)
-        res.status(422).send(errors)
-        return
-    }
-
-    const emailExists = await db.query(`SELECT * FROM users WHERE email=$1`, [user.email])
-
-    if (
-        emailExists.rowCount!==0
-        ){
-        res.status(409).send("Email already in use.")
-        return
-    }
-
-    const usernameExists = await db.query(`SELECT * FROM users WHERE "username"=$1`, [user.username])
-
-    if (
-        usernameExists.rowCount!==0
-        ){
-        res.status(409).send("Username already in use.")
-        return
-    }
-
-
-    res.locals.user = user
+    {const { code, message } = await checkUserAlreadyExists(user.username, user.email)
+    if(code){return res.status(code).send(message)}}
 
     next()
-
 }
 
-export async function signInSchemaValidation (req, res, next){
 
+//////////////////////////////////////////////////////////////
+
+
+export async function signInSchemaValidation (req, res, next){
     const user = req.body
 
-    const validation = signInSchema.validate(user, {abortEarly: false})
+    {const { code, message } = schemaValidation(signInSchema, user)
+    if(code){return res.status(code).send(message)}}
 
-    if (validation.error){
-        const errors = validation.error.details.map((detail) => detail.message)
-        res.status(422).send(errors)
-        return
-    }
-
-    const emailExists = await db.query(`SELECT * FROM users WHERE email=$1`, [user.email])
-
-    if (
-        emailExists.rowCount==0
-        ){
-        res.status(401).send("User not registered.")
-        return
-    }
-
-    res.locals.user = user
+    {const { code, message, info } = await checkUser(user)
+    if(code){return res.status(code).send(message)}
+    else{res.locals.id = info.id}}
 
     next()
-
 }
