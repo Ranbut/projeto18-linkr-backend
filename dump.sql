@@ -154,7 +154,7 @@ CREATE TABLE public.sessions (
     id integer NOT NULL,
     "userId" integer NOT NULL,
     token character varying(60) NOT NULL,
-    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
+    "createdAt" bigint NOT NULL
 );
 
 
@@ -186,7 +186,7 @@ CREATE TABLE public.users (
     id integer NOT NULL,
     email character varying(255) NOT NULL,
     password character varying(80) NOT NULL,
-    "userName" character varying(30) NOT NULL,
+    username character varying(30) NOT NULL,
     "pictureUrl" text NOT NULL,
     "createdAt" timestamp without time zone DEFAULT '2023-03-08 15:08:04.595033'::timestamp without time zone NOT NULL
 );
@@ -373,7 +373,7 @@ ALTER TABLE ONLY public.users
 --
 
 ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_username_key UNIQUE ("userName");
+    ADD CONSTRAINT users_username_key UNIQUE ("username");
 
 
 --
