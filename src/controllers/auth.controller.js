@@ -1,6 +1,7 @@
 import { db } from '../database/database.connection.js'
 import bcrypt from "bcrypt";
 import { v4 as uuidV4 } from "uuid";
+import { createSession, createUser, getUserInfo, toLogOut } from '../repositories/auth.repository.js';
 
 export async function signUp(req, res) {
 
@@ -9,11 +10,7 @@ export async function signUp(req, res) {
     const passwordHash = bcrypt.hashSync(password, 10);
 
     try {
-        await db.query(`
-        INSERT INTO users 
-        (email, password, "userName", "pictureUrl") 
-        VALUES ($1, $2, $3, $4);
-        `, [email, passwordHash, username, pictureUrl])
+        await createUser({ email, passwordHash, username, pictureUrl })
 
         res.status(201).send("Created.")
     }
@@ -30,20 +27,15 @@ export async function signIn(req, res) {
 
     try {
 
-        const userInfo = await db.query(`
-        SELECT * FROM users
-        WHERE email = $1
-        `, [email])
+        const userInfo = await getUserInfo(email)
 
         const passwordCompare = bcrypt.compareSync(password, userInfo.rows[0].password);
 
-        if (userInfo.rowCount!==0 && passwordCompare) {
+        const userId = userInfo.rows[0].id
 
-            await db.query(`
-            INSERT INTO sessions 
-            ("userId", token) 
-            VALUES ($1, $2);
-            `, [userInfo.rows[0].id, token])
+        if (userInfo.rowCount !== 0 && passwordCompare) {
+
+            await createSession({ userId, token })
 
             res.status(200).send({ token: token })
 
@@ -69,12 +61,8 @@ export async function logOut(req, res) {
     }
 
     try {
-        const logout = await db.query(`
-        DELETE 
-        FROM sessions 
-        WHERE token = $1;
-        `, [token])
-       
+        await toLogOut({ token })
+
         res.status(201).send("logout")
     }
     catch (err) {
@@ -100,7 +88,7 @@ export async function GetUserByToken(req, res) {
         ON "sessions"."userId" = userGroup."id"
         WHERE token = $1;
         `, [token])
-       
+
         res.status(201).send(userInfo.rows[0])
     }
     catch (err) {
