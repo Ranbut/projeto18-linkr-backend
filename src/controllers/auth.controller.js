@@ -34,7 +34,7 @@ export async function signIn(req, res) {
     const item = await getUser(session.userId)
 
     const user = {
-        userId: item.rows[0].id,
+        id: item.rows[0].id,
         email: item.rows[0].email,
         username: item.rows[0].username,
         pictureUrl: item.rows[0].pictureUrl,
