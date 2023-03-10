@@ -34,15 +34,18 @@ export async function signIn(req, res){
 
 export async function logOut(req, res) {
 
-    const { token } = req.body
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "");
+  
 
     if (!token) {
-        res.sendStatus(401);
-        return;
+      res.sendStatus(401);
+      return;
     }
 
+
     try {
-        await toLogOut({ token })
+        await toLogOut(token)
 
         res.status(201).send("logout")
     }

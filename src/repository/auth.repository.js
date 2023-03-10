@@ -87,7 +87,7 @@ export async function createUser({ email, passwordHash, username, pictureUrl }) 
         `, [email, passwordHash, username, pictureUrl])
 }
 
-export async function toLogOut({ token }) {
+export async function toLogOut( token ) {
     return await db.query(`
         DELETE 
         FROM sessions 
