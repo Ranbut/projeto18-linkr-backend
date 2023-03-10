@@ -39,6 +39,7 @@ export async function signIn(req, res) {
         username: item.rows[0].username,
         pictureUrl: item.rows[0].pictureUrl,
         createdAt: item.rows[0].createdAt,
+        token: session.token
     }
 
 
