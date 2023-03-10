@@ -95,3 +95,26 @@ export async function toLogOut( token ) {
         `, [token])
 
 }
+
+
+export async function updateCreatedAt(token){
+
+          return await db.query(`
+            UPDATE sessions 
+            SET "createdAt"=$1 
+            WHERE token=$2`, 
+            [Date.now(), token])
+        }
+
+
+ export async function getLastTime(token){
+
+            const thisSession = db.query(`
+            SELECT "createdAt"
+            FROM sessions
+            WHERE token=$1
+            `, [token])
+
+            return thisSession
+        }
+  
