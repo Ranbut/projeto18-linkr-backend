@@ -241,6 +241,19 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
+-- Name: view_likes_count; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.view_likes_count AS
+ SELECT posts.id,
+    count(likes.id) AS "likeCount"
+   FROM (public.posts
+     LEFT JOIN public.likes ON ((likes."postId" = posts.id)))
+  GROUP BY posts.id
+  ORDER BY (count(likes.id)) DESC;
+
+
+--
 -- Name: hashtags id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -293,7 +306,9 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 --
 
 INSERT INTO public.likes VALUES (8, 1, 3, '2023-03-09 19:24:45.806492');
-INSERT INTO public.likes VALUES (9, 2, 3, '2023-03-09 19:27:35.875652');
+INSERT INTO public.likes VALUES (11, 2, 4, '2023-03-10 04:14:33.979166');
+INSERT INTO public.likes VALUES (12, 1, 4, '2023-03-10 04:14:37.396187');
+INSERT INTO public.likes VALUES (13, 1, 5, '2023-03-10 04:25:33.21968');
 
 
 --
@@ -321,6 +336,8 @@ INSERT INTO public.posts VALUES (2, 3, 'aaaaaaa', 'aaaaa', '2023-09-03 00:00:00'
 --
 
 INSERT INTO public.users VALUES (3, 'email@gmail.com', '$2b$10$kRSu6H.fdAvjwoAf1QUj2OOI.Ma2qCrvtNwHyBwDej8HccGJvKMiS', 'emailkk', 'https://cdn.sstatic.net/Img/teams/teams-illo-free-sidebar-promo.svg?v=47faa659a05e', '2023-03-08 15:08:04.595033');
+INSERT INTO public.users VALUES (4, 'email1@gmail.com', '$2b$10$LKXno7xmWyNNPLka.0guK.XiYsYpbTVMDxd96BTECB1DxAc9ujq5y', 'emailk', 'https://cdn.sstatic.net/Img/teams/teams-illo-free-sidebar-promo.svg?v=47faa659a05e', '2023-03-08 15:08:04.595033');
+INSERT INTO public.users VALUES (5, 'email2@gmail.com', '$2b$10$I2T/kxNP/bGJaGP7BhHhHecyZ4i/qMzTmA5LaGK.rzGbKSLB6TKmG', 'danne', 'https://cdn.sstatic.net/Img/teams/teams-illo-free-sidebar-promo.svg?v=47faa659a05e', '2023-03-08 15:08:04.595033');
 
 
 --
@@ -334,7 +351,7 @@ SELECT pg_catalog.setval('public.hashtags_id_seq', 92, true);
 -- Name: likes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.likes_id_seq', 9, true);
+SELECT pg_catalog.setval('public.likes_id_seq', 13, true);
 
 
 --
@@ -355,14 +372,14 @@ SELECT pg_catalog.setval('public.posts_id_seq', 56, true);
 -- Name: sessions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.sessions_id_seq', 3, true);
+SELECT pg_catalog.setval('public.sessions_id_seq', 6, true);
 
 
 --
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 3, true);
+SELECT pg_catalog.setval('public.users_id_seq', 5, true);
 
 
 --
