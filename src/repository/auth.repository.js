@@ -118,3 +118,15 @@ export async function updateCreatedAt(token){
             return thisSession
         }
   
+
+        export async function getUser(userId){
+
+            const user = db.query(`
+            SELECT *
+            FROM users
+            WHERE id=$1
+            `, [userId])
+
+            return user
+        }
+  

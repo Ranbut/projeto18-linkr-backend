@@ -1,4 +1,4 @@
-import { signInUser, createUser, toLogOut, updateCreatedAt, getLastTime } from '../repository/auth.repository.js';
+import { signInUser, createUser, toLogOut, updateCreatedAt, getLastTime, getUser } from '../repository/auth.repository.js';
 import bcrypt from "bcrypt";
 import { v4 as uuidV4 } from "uuid";
 
@@ -31,7 +31,20 @@ export async function signIn(req, res) {
         if (code) { return res.status(code).send(message) }
     }
 
-    return res.status(200).send({ token: session.token })
+    const item = await getUser(session.userId)
+
+    const user = {
+        id: item.rows[0].id,
+        email: item.rows[0].email,
+        username: item.rows[0].username,
+        pictureUrl: item.rows[0].pictureUrl,
+        createdAt: item.rows[0].createdAt,
+    }
+
+
+    return res.status(200).send(user)
+
+    // return res.status(200).send({ token: session.token })
 }
 
 export async function logOut(req, res) {
