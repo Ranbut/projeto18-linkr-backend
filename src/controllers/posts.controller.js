@@ -88,10 +88,28 @@ export async function editPost(req, res) {
 }
 
 export async function deletePost(req, res) {
-    try {
-    }
 
+    const id = req.params.id;
+
+    try {
+        await db.query(`
+            DELETE FROM "messagesHashtags"
+            WHERE "postId" = $1
+        `, [id]);
+
+        await db.query(`
+            DELETE FROM "likes"
+            WHERE "postId" = $1
+        `, [id]);
+
+        await db.query(`
+            DELETE FROM "posts"
+            WHERE id = $1
+        `, [id]);
+
+        res.sendStatus(202);
+    }
     catch (err) {
-        res.status(422).send(err.message);
+        res.status(500).send(err.message);
     }
 }
