@@ -98,6 +98,11 @@ export async function deletePost(req, res) {
         `, [id]);
 
         await db.query(`
+            DELETE FROM "likes"
+            WHERE "postId" = $1
+        `, [id]);
+
+        await db.query(`
             DELETE FROM "posts"
             WHERE id = $1
         `, [id]);
