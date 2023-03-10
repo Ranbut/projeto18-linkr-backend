@@ -1,5 +1,4 @@
-import { db } from '../database/database.connection.js'
-import { signInUser, createUser, toLogOut } from '../repository/auth.repository.js';
+import { signInUser, createUser, toLogOut, updateCreatedAt, getUserId } from '../repository/auth.repository.js';
 import bcrypt from "bcrypt";
 import { v4 as uuidV4 } from "uuid";
 
@@ -20,37 +19,57 @@ export async function signUp(req, res) {
     }
 }
 
-export async function signIn(req, res){
+export async function signIn(req, res) {
     const session = {
-    userId: res.locals.id,
-    token: uuidV4(),
-    createdAt: Date.now()}
+        userId: res.locals.id,
+        token: uuidV4(),
+        createdAt: Date.now()
+    }
 
-    {const { code, message } = await signInUser(session)
-    if(code){return res.status(code).send(message)}}
+    {
+        const { code, message } = await signInUser(session)
+        if (code) { return res.status(code).send(message) }
+    }
 
-    return res.status(200).send({token: session.token})
+    return res.status(200).send({ token: session.token })
 }
 
 export async function logOut(req, res) {
 
     const { authorization } = req.headers;
     const token = authorization?.replace("Bearer ", "");
-  
 
     if (!token) {
-      res.sendStatus(401);
-      return;
+        res.sendStatus(401);
+        return;
     }
-
 
     try {
         await toLogOut(token)
-
-        res.status(201).send("logout")
+        res.sendStatus(201)
     }
     catch (err) {
         res.status(422).send(err.message)
     }
 
 }
+
+export async function persistSession(req, res){
+
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "")
+       
+        try {
+            const newTime = Date.now()
+            const currentUserId = await getUserId(token)
+
+
+            await updateCreatedAt(newTime, currentUserId)
+            res.status(201).send(newTime)
+        }
+    
+        catch (err) {
+            res.status(422).send(err.message)
+        }
+    }
+    

@@ -14,3 +14,4 @@ export async function validateToken(token){
 
     } catch(err){return resp.direct(500, err.message)}
 };
+

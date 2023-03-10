@@ -95,3 +95,29 @@ export async function toLogOut( token ) {
         `, [token])
 
 }
+
+export async function getUserId(token){
+
+    try{
+        const user = await db.query(
+            `SELECT "userId" 
+            FROM sessions 
+            WHERE token=$1`
+            , [token])
+        
+        return user.rows[0].userId
+    
+        
+    } catch(err){
+        return err.message
+    }
+}
+
+export async function updateCreatedAt(newTime, currentUserId){
+
+          return await db.query(`
+            UPDATE sessions 
+            SET "createdAt"=$1 
+            WHERE "userId"=$2`, 
+            [newTime, currentUserId])
+        }
