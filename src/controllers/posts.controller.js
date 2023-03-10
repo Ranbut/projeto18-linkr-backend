@@ -4,7 +4,7 @@ import { db } from '../database/database.connection.js'
 export async function getPost(req, res) {
     try {
         const posts = await db.query(`
-            SELECT userGroup."username", userGroup."pictureUrl", message, link, "posts".id
+            SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", message, link, "posts".id
             FROM "posts"
             LEFT JOIN "users" AS userGroup
             ON "posts"."userId" = userGroup."id"
@@ -70,6 +70,16 @@ export async function pushPost(req, res) {
 
 export async function editPost(req, res) {
     try {
+        const message = req.body.message;
+        const id = req.params.id;
+
+        const result = await db.query(`SELECT * FROM "posts" WHERE "id" = $1;`, [id]);
+
+        if (result.rowCount === 0) return res.status(404).send("Post not found.");
+
+        await db.query(`UPDATE "posts" SET "message"=$1 WHERE "id"=$2;`, [message, id]);
+
+        res.status(200).send("Post edited.");
     }
 
     catch (err) {
