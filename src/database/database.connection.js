@@ -9,7 +9,7 @@ const configDatabase ={
 }
 
 if (process.env.mode === "prod"){
-    configDatabase.ssl = false
+    configDatabase.ssl = true
 }
 
 
