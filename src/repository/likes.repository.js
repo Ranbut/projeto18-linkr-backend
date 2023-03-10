@@ -16,40 +16,39 @@ export async function likePostRep(_postId, _userId){
 }
 
 
-export async function getlikeList(_postId, _offset, _limit){
+export async function getlikeList(_userId, _postId){
     const resp = new RepositoryResponse
 
     try {
         const query = await db.query(`
         SELECT 
-        likes."userId", 
-        usr.username,
-        usr."pictureUrl"
+        likes."userId" as id, 
+        usr.username
 
         FROM likes 
         INNER JOIN users usr ON usr.id = likes."userId"
        	WHERE "postId" = $1
+
         ORDER BY likes."createdAt" ASC
-        OFFSET $2 LIMIT $3;
-        `, 
-        [_postId, _offset, _limit])
-
-        resp.info = query.rows
-        return resp.continue() 
-
-    } catch(err){return resp.direct(500, err.message)}
-}
-
-export async function getlikeCount(_postId){
-    const resp = new RepositoryResponse
-
-    try {
-        const query = await db.query(`
-        SELECT * FROM view_likes_count WHERE id = $1
         `, 
         [_postId])
-        
-        resp.info = {count: query.rows[0].likeCount}
+
+        const userLike = await db.query(`
+        SELECT * FROM likes WHERE "userId" = $1 AND "postId" = $2
+        `, 
+        [_userId, _postId])
+
+        let userLiked = false;
+
+        if(userLike.rows.length === 1){
+            userLiked = true;
+        }
+
+        resp.info ={
+            "userId": _userId,
+            "userLikedThisPost": userLiked,
+            "likes": query.rows} 
+    
         return resp.continue() 
 
     } catch(err){return resp.direct(500, err.message)}
