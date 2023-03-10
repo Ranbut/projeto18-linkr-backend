@@ -1,4 +1,4 @@
-import { signInUser, createUser, toLogOut, updateCreatedAt, getUserId } from '../repository/auth.repository.js';
+import { signInUser, createUser, toLogOut, updateCreatedAt, getLastTime } from '../repository/auth.repository.js';
 import bcrypt from "bcrypt";
 import { v4 as uuidV4 } from "uuid";
 
@@ -60,12 +60,11 @@ export async function persistSession(req, res){
     const token = authorization?.replace("Bearer ", "")
        
         try {
-            const newTime = Date.now()
-            const currentUserId = await getUserId(token)
+            await updateCreatedAt(token)
 
+           const lastTime = await getLastTime(token)
 
-            await updateCreatedAt(newTime, currentUserId)
-            res.status(201).send(newTime)
+            res.status(201).send(lastTime.rows[0].createdAt)
         }
     
         catch (err) {
