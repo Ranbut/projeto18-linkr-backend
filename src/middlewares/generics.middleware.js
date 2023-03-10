@@ -18,7 +18,7 @@ export function schemaValidation(schema, data, code){
 ////////////////////////////////////////////////////////////
 
 
-export async function idParamSanitization(req, res, next) {
+export async function idSanit(req, res, next) {
     let { id } = req.params
     id = Number.parseInt(id)
     id = isNaN(id) ? "" : id

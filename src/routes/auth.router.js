@@ -5,7 +5,7 @@ import { signUpSchemaValidation, signInSchemaValidation } from '../middlewares/a
 const authRouter = Router();
 
 authRouter.post("/sign-up", signUpSchemaValidation, signUp);
-authRouter.post("/sign-in",signInSchemaValidation ,signIn);
+authRouter.post("/sign-in",signInSchemaValidation, signIn);
 authRouter.delete("/logout", logOut);
 
 export default authRouter;
