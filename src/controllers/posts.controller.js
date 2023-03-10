@@ -40,6 +40,48 @@ export async function getPost(req, res) {
     }
 }
 
+export async function getPostsUser(req, res) {
+    try {
+        const id = req.params.id;
+
+        const posts = await db.query(`
+            SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", message, link, "posts".id
+            FROM "posts"
+            LEFT JOIN "users" AS userGroup
+            ON "posts"."userId" = userGroup."id"
+            WHERE userGroup.id = $1
+            ORDER BY posts."createdAt" DESC LIMIT 20;
+        `, [id]);
+
+        const result = posts.rows;
+
+        const createSendObj = async (result) => {
+            const output = await Promise.all(result.map(async (o) => {
+                try {
+                    const metadata = await urlMetadata(o.link);
+                    return {
+                        ...o,
+                        linkTitle: metadata.title,
+                        linkImage: metadata.image,
+                        linkDescription: metadata.description
+                    };
+                } catch (error) {
+                    console.log(error);
+                }
+            }));
+            return output;
+        };
+
+
+        const sendObj = await createSendObj(result);
+
+        res.status(200).send(sendObj);
+
+    } catch (err) {
+        res.status(422).send(err.message);
+    }
+}
+
 export async function pushPost(req, res) {
     try {
         const { message, link } = res.locals.post;
