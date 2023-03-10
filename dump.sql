@@ -16,6 +16,34 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: toggle_like(numeric, numeric); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.toggle_like(post_id numeric, user_id numeric) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    row_exists NUMERIC;
+BEGIN
+
+    SELECT 1 
+    INTO row_exists 
+    FROM likes
+    WHERE likes."postId" = post_id and likes."userId" = user_id;
+
+    IF (row_exists > 0) THEN
+        DELETE FROM likes WHERE likes."postId" = post_id and likes."userId" = user_id;
+        RETURN 0;
+    ELSE
+        INSERT INTO likes ("postId", "userId") VALUES(post_id, user_id);
+        RETURN 1;
+    END IF;
+
+END; 
+$$;
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -56,8 +84,8 @@ ALTER SEQUENCE public.hashtags_id_seq OWNED BY public.hashtags.id;
 
 CREATE TABLE public.likes (
     id integer NOT NULL,
+    "postId" integer NOT NULL,
     "userId" integer NOT NULL,
-    "postsId" integer NOT NULL,
     "createdAt" timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -213,6 +241,19 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
+-- Name: view_likes_count; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.view_likes_count AS
+ SELECT posts.id,
+    count(likes.id) AS "likeCount"
+   FROM (public.posts
+     LEFT JOIN public.likes ON ((likes."postId" = posts.id)))
+  GROUP BY posts.id
+  ORDER BY (count(likes.id)) DESC;
+
+
+--
 -- Name: hashtags id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -255,6 +296,51 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
+-- Data for Name: hashtags; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: likes; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.likes VALUES (8, 1, 3, '2023-03-09 19:24:45.806492');
+INSERT INTO public.likes VALUES (11, 2, 4, '2023-03-10 04:14:33.979166');
+INSERT INTO public.likes VALUES (12, 1, 4, '2023-03-10 04:14:37.396187');
+INSERT INTO public.likes VALUES (13, 1, 5, '2023-03-10 04:25:33.21968');
+
+
+--
+-- Data for Name: messagesHashtags; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: posts; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.posts VALUES (1, 3, 'aaaaaaa', 'aaaaa', '2023-09-03 00:00:00');
+INSERT INTO public.posts VALUES (2, 3, 'aaaaaaa', 'aaaaa', '2023-09-03 00:00:00');
+
+
+--
+-- Data for Name: sessions; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.users VALUES (3, 'email@gmail.com', '$2b$10$kRSu6H.fdAvjwoAf1QUj2OOI.Ma2qCrvtNwHyBwDej8HccGJvKMiS', 'emailkk', 'https://cdn.sstatic.net/Img/teams/teams-illo-free-sidebar-promo.svg?v=47faa659a05e', '2023-03-08 15:08:04.595033');
+INSERT INTO public.users VALUES (4, 'email1@gmail.com', '$2b$10$LKXno7xmWyNNPLka.0guK.XiYsYpbTVMDxd96BTECB1DxAc9ujq5y', 'emailk', 'https://cdn.sstatic.net/Img/teams/teams-illo-free-sidebar-promo.svg?v=47faa659a05e', '2023-03-08 15:08:04.595033');
+INSERT INTO public.users VALUES (5, 'email2@gmail.com', '$2b$10$I2T/kxNP/bGJaGP7BhHhHecyZ4i/qMzTmA5LaGK.rzGbKSLB6TKmG', 'danne', 'https://cdn.sstatic.net/Img/teams/teams-illo-free-sidebar-promo.svg?v=47faa659a05e', '2023-03-08 15:08:04.595033');
+
+
+--
 -- Name: hashtags_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -265,7 +351,7 @@ SELECT pg_catalog.setval('public.hashtags_id_seq', 92, true);
 -- Name: likes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.likes_id_seq', 1, false);
+SELECT pg_catalog.setval('public.likes_id_seq', 13, true);
 
 
 --
@@ -286,14 +372,14 @@ SELECT pg_catalog.setval('public.posts_id_seq', 56, true);
 -- Name: sessions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.sessions_id_seq', 2, true);
+SELECT pg_catalog.setval('public.sessions_id_seq', 6, true);
 
 
 --
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 2, true);
+SELECT pg_catalog.setval('public.users_id_seq', 5, true);
 
 
 --
@@ -313,11 +399,19 @@ ALTER TABLE ONLY public.hashtags
 
 
 --
--- Name: likes likes_pk; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: likes likes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.likes
-    ADD CONSTRAINT likes_pk PRIMARY KEY (id);
+    ADD CONSTRAINT likes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: likes likes_postId_userId_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes
+    ADD CONSTRAINT "likes_postId_userId_key" UNIQUE ("postId", "userId");
 
 
 --
@@ -373,23 +467,23 @@ ALTER TABLE ONLY public.users
 --
 
 ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_username_key UNIQUE ("username");
+    ADD CONSTRAINT users_username_key UNIQUE (username);
 
 
 --
--- Name: likes likes_fk0; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.likes
-    ADD CONSTRAINT likes_fk0 FOREIGN KEY ("userId") REFERENCES public.users(id);
-
-
---
--- Name: likes likes_fk1; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: likes likes_postId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.likes
-    ADD CONSTRAINT likes_fk1 FOREIGN KEY ("postsId") REFERENCES public.posts(id);
+    ADD CONSTRAINT "likes_postId_fkey" FOREIGN KEY ("postId") REFERENCES public.posts(id);
+
+
+--
+-- Name: likes likes_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes
+    ADD CONSTRAINT "likes_userId_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id);
 
 
 --

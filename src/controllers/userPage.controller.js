@@ -55,7 +55,7 @@ export async function GetUserByToken(req, res) {
     
     try {
         const userInfo = await db.query(`
-        SELECT userGroup.username, userGroup."pictureUrl"
+        SELECT userGroup.id, userGroup.username, userGroup."pictureUrl"
         FROM "sessions"
         LEFT JOIN "users" AS userGroup
         ON "sessions"."userId" = userGroup."id"
