@@ -1,4 +1,4 @@
-import { getCommentRep, postCommentRep } from "../repository/comments.repository"
+import { getCommentRep, postCommentRep } from "../repository/comments.repository.js"
 
 export async function postComment(req, res) {
 

@@ -1,6 +1,6 @@
 import {Router} from 'express';
-import { getComment, postComment } from '../controllers/comments.controller';
-import { postCommentValidation } from '../middlewares/comments.middleware';
+import { getComment, postComment } from '../controllers/comments.controller.js';
+import { postCommentValidation } from '../middlewares/comments.middleware.js';
 
 const commentRouter = Router();
 
