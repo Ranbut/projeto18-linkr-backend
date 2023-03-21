@@ -4,7 +4,9 @@ import { db } from '../database/database.connection.js'
 export async function getPost(req, res) {
     try {
         const posts = await db.query(`
-            SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", message, link, "posts".id
+            SELECT 
+                userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", 
+                message, link, "posts".id
             FROM "posts"
             LEFT JOIN "users" AS userGroup
             ON "posts"."userId" = userGroup."id"
@@ -24,19 +26,18 @@ export async function getPost(req, res) {
                         linkDescription: metadata.description
                     };
                 } catch (error) {
-                    console.log(error);
+                    return error;
                 }
             }));
             return output;
         };
 
-
         const sendObj = await createSendObj(result);
 
-        res.status(200).send(sendObj);
+        return res.status(200).send(sendObj);
 
     } catch (err) {
-        res.status(422).send(err.message);
+        return res.status(422).send(err.message);
     }
 }
 
@@ -105,10 +106,9 @@ export async function pushPost(req, res) {
 
         res.status(200).send("Post pushed.");
     } catch (err) {
-        res.status(422).send(err.message);
+        res.status(500).send(err.message);
     }
 }
-
 
 export async function editPost(req, res) {
     try {

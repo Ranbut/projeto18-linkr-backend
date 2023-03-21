@@ -8,13 +8,13 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-import authRouter from './routes/auth.router.js';
-import postsRouter from './routes/posts.router.js';
+import authRouter from './routes/auth.routes.js';
+import postsRouter from './routes/posts.routes.js';
 import trendingRoutes from './routes/trending.routes.js';
-import userPage from './routes/userPage.router.js';
+import userPage from './routes/userPage.routes.js';
 import sessionRefresh from './session.js';
 import likeRoutes from './routes/likes.routes.js';
-import commentRouter from './routes/comments.router.js';
+import commentRouter from './routes/comments.routes.js';
 
 app.use ([
     authRouter,
