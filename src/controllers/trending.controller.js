@@ -1,4 +1,5 @@
 import { db } from "../database/database.connection.js";
+import urlMetadata from 'url-metadata';
 
 export async function getTrend(req, res) {
     try {
@@ -24,15 +25,36 @@ export async function getPostByHashtag(req, res) {
 
     try {
         const { rows: posts } = await db.query(`
-            SELECT userGroup."username", userGroup."pictureUrl", message, link, "posts".id
-            FROM "posts"
+        SELECT 
+            userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", 
+            message, link, "posts".id
+        FROM "posts"
             LEFT JOIN "users" AS userGroup
             ON "posts"."userId" = userGroup."id"
             WHERE "posts".message LIKE $1
             ORDER BY posts."createdAt" DESC
         `, [hashtag]);
 
-        return res.send(posts);
+        const createSendObj = async () => {
+            const output = await Promise.all(posts.map(async (o) => {
+                try {
+                    const metadata = await urlMetadata(o.link);
+                    return {
+                        ...o,
+                        linkTitle: metadata.title,
+                        linkImage: metadata.image,
+                        linkDescription: metadata.description
+                    };
+                } catch (err) {
+                    console.log(err);
+                }
+            }));
+            return output;
+        };
+
+        const sendObj = await createSendObj();
+
+        return res.status(200).send(sendObj);
     } catch (err) {
         return res.status(500).send(err.message);
     }
