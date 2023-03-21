@@ -7,6 +7,11 @@ export default function getHashtag() {
             const hashtags = post.message.match(/#\w+/g);
             const hashtagsIds = [];
 
+            if (!hashtags) {
+                res.locals.hashtagsIds = hashtagsIds;
+                return next();
+            }
+            
             for (let i = 0; i < hashtags.length; i++) {
                 await db.query(`
                     INSERT INTO hashtags(hashtag)
@@ -26,7 +31,7 @@ export default function getHashtag() {
 
             res.locals.hashtagsIds = hashtagsIds;
 
-            next();
+            return next();
         } catch (err) {
             return res.status(500).send(err.message);
         }
