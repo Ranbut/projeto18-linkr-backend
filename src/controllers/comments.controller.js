@@ -1,9 +1,35 @@
 import { getCommentRep, postCommentRep } from "../repository/comments.repository"
 
 export async function postComment(req, res) {
-    console.log(req.body)
+
+    const {postId, userId, message} = req.body
+
+    try{
+        await postCommentRep(postId, userId, message)
+        
+        res.status(200).send("Comment posted")
+        
+    }catch{
+        return res.sendStatus(500);
+    }
+
 }
 
 export async function getComment(req, res) {
-    console.log(req)
+
+    const { id } = req.params
+
+  try {
+    const {result} = await getCommentRep(id)
+    
+	if (result.rowCount === 0) {
+    return res.sendStatus(404)
+    }
+
+    res.send(result.rows);
+
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+
 }
