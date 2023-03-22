@@ -44,7 +44,30 @@ export async function getPostsUserRep(userId) {
 export async function getPostRep(postId) {
     try {
         const post = await db.query(`SELECT * FROM "posts" WHERE "id" = $1;`, [postId]);
+
         return post;
+
+    } catch (err) {
+        return err.message;
+    }
+}
+
+export async function insertPostRep(bearer, message, link, hashtagsId) {
+    try {
+        const userId = (await db.query(`SELECT "userId" FROM sessions WHERE token=$1;`, [bearer])).rows[0].userId;
+
+        const { rows: id } = await db.query(`INSERT INTO "posts" ("userId" , "message", "link") VALUES ($1, $2, $3) RETURNING id;`, [userId, message, link]);
+
+        for (let i = 0; i < hashtagsId.length; i++) {
+            await db.query(`
+                INSERT INTO "messagesHashtags"(
+                    "postId", "hashtagId"
+                )
+                VALUES ($1, $2)
+            `, [id[0].id, hashtagsId[i]]);
+        }
+
+        return;
 
     } catch (err) {
         return err.message;

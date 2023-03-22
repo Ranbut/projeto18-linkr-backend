@@ -6,6 +6,5 @@ export const postSchema = joi.object({
 });
 
 export const postEditSchema = joi.object({
-      message: joi.string().required(),
-      link: joi.string().required()
+      message: joi.string().required()
 });

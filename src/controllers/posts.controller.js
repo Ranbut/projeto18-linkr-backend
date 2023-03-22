@@ -1,6 +1,5 @@
 import urlMetadata from 'url-metadata';
-import { db } from '../database/database.connection.js';
-import { getPostsRep, getPostsUserRep, getPostRep, updateMsgPostRep, deletePostRep } from "../repository/posts.repository.js";
+import { getPostsRep, getPostsUserRep, getPostRep, updateMsgPostRep, deletePostRep, insertPostRep } from "../repository/posts.repository.js";
 
 export async function getPost(req, res) {
     try {
@@ -73,20 +72,11 @@ export async function pushPost(req, res) {
 
         const header = authorization.split(' ');
         const bearer = header[1];
-        const userId = (await db.query(`SELECT "userId" FROM sessions WHERE token=$1;`, [bearer])).rows[0].userId;
 
-        const { rows: id } = await db.query(`INSERT INTO "posts" ("userId" , "message", "link") VALUES ($1, $2, $3) RETURNING id;`, [userId, message, link]);
-
-        for (let i = 0; i < hashtagsId.length; i++) {
-            await db.query(`
-                INSERT INTO "messagesHashtags"(
-                    "postId", "hashtagId"
-                )
-                VALUES ($1, $2)
-            `, [id[0].id, hashtagsId[i]]);
-        }
+        await insertPostRep(bearer, message, link, hashtagsId);
 
         res.status(200).send("Post pushed.");
+
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -95,7 +85,7 @@ export async function pushPost(req, res) {
 export async function editPost(req, res) {
     try {
         const id = req.params.id;
-        const { message } = req.locals.post;
+        const { message } = req.body;
         const hashtagsId = res.locals.hashtagsIds;
 
         const result = await getPostRep(id);
