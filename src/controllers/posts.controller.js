@@ -1,19 +1,10 @@
 import urlMetadata from 'url-metadata';
-import { db } from '../database/database.connection.js'
+import { db } from '../database/database.connection.js';
+import { getPostsRep, getPostsUserRep, getPostRep, updateMsgPostRep, deletePostRep } from "../repository/posts.repository.js";
 
 export async function getPost(req, res) {
     try {
-        const posts = await db.query(`
-            SELECT 
-                userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", 
-                message, link, "posts".id
-            FROM "posts"
-            LEFT JOIN "users" AS userGroup
-            ON "posts"."userId" = userGroup."id"
-            ORDER BY posts."createdAt" DESC LIMIT 20;
-        `);
-
-        const result = posts.rows;
+        const posts = await getPostsRep();
 
         const createSendObj = async (result) => {
             const output = await Promise.all(result.map(async (o) => {
@@ -32,7 +23,7 @@ export async function getPost(req, res) {
             return output;
         };
 
-        const sendObj = await createSendObj(result);
+        const sendObj = await createSendObj(posts);
 
         return res.status(200).send(sendObj);
 
@@ -45,16 +36,7 @@ export async function getPostsUser(req, res) {
     try {
         const id = req.params.id;
 
-        const posts = await db.query(`
-            SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", message, link, "posts".id
-            FROM "posts"
-            LEFT JOIN "users" AS userGroup
-            ON "posts"."userId" = userGroup."id"
-            WHERE userGroup.id = $1
-            ORDER BY posts."createdAt" DESC LIMIT 20;
-        `, [id]);
-
-        const result = posts.rows;
+        const posts = await getPostsUserRep(id);
 
         const createSendObj = async (result) => {
             const output = await Promise.all(result.map(async (o) => {
@@ -74,7 +56,7 @@ export async function getPostsUser(req, res) {
         };
 
 
-        const sendObj = await createSendObj(result);
+        const sendObj = await createSendObj(posts);
 
         res.status(200).send(sendObj);
 
@@ -112,14 +94,15 @@ export async function pushPost(req, res) {
 
 export async function editPost(req, res) {
     try {
-        const message = req.body.message;
         const id = req.params.id;
+        const { message } = req.locals.post;
+        const hashtagsId = res.locals.hashtagsIds;
 
-        const result = await db.query(`SELECT * FROM "posts" WHERE "id" = $1;`, [id]);
+        const result = await getPostRep(id);
 
         if (result.rowCount === 0) return res.status(404).send("Post not found.");
 
-        await db.query(`UPDATE "posts" SET "message"=$1 WHERE "id"=$2;`, [message, id]);
+        await updateMsgPostRep(id, message, hashtagsId);
 
         res.status(200).send("Post edited.");
     }
@@ -134,20 +117,7 @@ export async function deletePost(req, res) {
     const id = req.params.id;
 
     try {
-        await db.query(`
-            DELETE FROM "messagesHashtags"
-            WHERE "postId" = $1
-        `, [id]);
-
-        await db.query(`
-            DELETE FROM "likes"
-            WHERE "postId" = $1
-        `, [id]);
-
-        await db.query(`
-            DELETE FROM "posts"
-            WHERE id = $1
-        `, [id]);
+        deletePostRep(id);
 
         res.sendStatus(202);
     }
