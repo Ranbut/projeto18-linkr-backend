@@ -10,9 +10,11 @@ export async function getPostsRep() {
         LEFT JOIN "users" AS userGroup
         ON "posts"."userId" = userGroup."id"
         ORDER BY posts."createdAt" DESC LIMIT 20;
-    `).rows;
+    `);
 
-        return posts;
+        const result = posts.rows;
+
+        return result;
 
     } catch (err) {
         return err.message;
@@ -29,7 +31,10 @@ export async function getPostsUserRep(userId) {
         WHERE userGroup.id = $1
         ORDER BY posts."createdAt" DESC LIMIT 20;
         `, [userId]).rows;
-        return posts;
+
+        const result = posts.rows;
+
+        return result;
 
     } catch (err) {
         return err.message;
