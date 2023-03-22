@@ -1,11 +1,20 @@
-import { db } from "../database/database.connection.js";
+import { commentSchema } from "../schemas/comments.schema.js";
 
 export async function postCommentValidation (req, res, next){
-    try{
-        console.log("Validation here")
-        next();
-        }
-        catch(err){
-          res.status(500).send(`Erro no servidor: ${err.message}`);
-      }
+
+    const comment = req.body //postId, message
+
+
+    const validation = commentSchema.validate(comment, {abortEarly: false})
+
+    if (validation.error){
+        const errors = validation.error.details.map((detail) => detail.message)
+        res.status(422).send(errors)
+        return
+    }
+
+    res.locals.comment = comment
+
+    next()
+
 }

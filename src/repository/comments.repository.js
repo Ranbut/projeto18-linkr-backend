@@ -1,8 +1,8 @@
 import { db } from "../database/database.connection.js"
 
 export async function postCommentRep(postId, userId, message) {
-    try {
 
+    try {
         await db.query(`
             INSERT INTO 
             comments 
@@ -19,6 +19,7 @@ export async function postCommentRep(postId, userId, message) {
 
 
 export async function getCommentRep(id) {
+
     try {
         const result = await db.query(
             `SELECT *

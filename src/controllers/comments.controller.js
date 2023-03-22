@@ -1,19 +1,35 @@
 import { getCommentRep, postCommentRep } from "../repository/comments.repository.js"
+import { validateToken } from "../repository/sessions.repository.js";
 
 export async function postComment(req, res) {
 
-    const {postId, userId, message} = req.body
+  const {postId, message} = res.locals.comment
 
-    try{
-        await postCommentRep(postId, userId, message)
-        
-        res.status(200).send("Comment posted")
-        
+  const { authorization } = req.headers;
+  const token = authorization?.replace("Bearer ", "");
+
+
+  if (!token) {
+    res.sendStatus(401);
+    return;
+  }
+
+  try{
+    const {info} =  await validateToken(token)
+    const userId = info.userId
+
+    await postCommentRep(postId, userId, message)
+      
+    res.status(201).send("Comment posted.")
+
     }catch{
-        return res.sendStatus(500);
+      res.status(401).send("Please login to comment.");
     }
 
 }
+
+
+
 
 export async function getComment(req, res) {
 
