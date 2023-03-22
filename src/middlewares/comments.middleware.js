@@ -2,7 +2,7 @@ import { commentSchema } from "../schemas/comments.schema.js";
 
 export async function postCommentValidation (req, res, next){
 
-    const comment = req.body //postId, message
+    const comment = req.body 
 
 
     const validation = commentSchema.validate(comment, {abortEarly: false})

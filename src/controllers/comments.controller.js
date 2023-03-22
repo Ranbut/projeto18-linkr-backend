@@ -33,12 +33,15 @@ export async function postComment(req, res) {
 
 export async function getComment(req, res) {
 
-    const { id } = req.params
+    const { postId } = req.params
 
   try {
-    const {result} = await getCommentRep(id)
+   
+    const result = await getCommentRep(postId)
+
+    console.log(result)
     
-	if (result.rowCount === 0) {
+	  if (result.rowCount === 0) {
     return res.sendStatus(404)
     }
 

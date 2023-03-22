@@ -18,14 +18,14 @@ export async function postCommentRep(postId, userId, message) {
 }
 
 
-export async function getCommentRep(id) {
+export async function getCommentRep(postId) {
 
     try {
         const result = await db.query(
             `SELECT *
                 FROM comments 
                 WHERE "postId"=$1`
-            , [id])
+            , [postId])
 
         return result
 
