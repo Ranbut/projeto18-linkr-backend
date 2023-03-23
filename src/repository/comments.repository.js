@@ -23,7 +23,7 @@ export async function getCommentRep(postId) {
     try {
         const result = await db.query(
             `SELECT 
-            comments.id AS "commentId", comments."postId", comments."userId", users.username, comments.message,
+            comments.id AS "commentId", comments."postId", comments."userId", users.username, users."pictureUrl", comments.message,
             posts."userId" AS "postOwnerId"
             FROM comments
             JOIN users
