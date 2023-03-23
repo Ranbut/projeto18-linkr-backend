@@ -15,6 +15,7 @@ import userPage from './routes/userPage.routes.js';
 import sessionRefresh from './session.js';
 import likeRoutes from './routes/likes.routes.js';
 import commentRouter from './routes/comments.routes.js';
+import shareRouter from './routes/share.routes.js'; 
 
 app.use ([
     authRouter,
@@ -22,7 +23,8 @@ app.use ([
     trendingRoutes,
     userPage,
     likeRoutes,
-    commentRouter
+    commentRouter,
+    shareRouter
     ]);
 
 const port = process.env.PORT || 5000;
