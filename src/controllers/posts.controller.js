@@ -1,9 +1,41 @@
 import urlMetadata from 'url-metadata';
-import { getPostsRep, getPostsUserRep, getPostRep, updateMsgPostRep, deletePostRep, insertPostRep } from "../repository/posts.repository.js";
+import { getPostsRep, getPostsUserRep, getPostRep, updateMsgPostRep, deletePostRep, insertPostRep, getRecentsPostsRep } from "../repository/posts.repository.js";
 
 export async function getPost(req, res) {
     try {
         const posts = await getPostsRep();
+
+        const createSendObj = async (result) => {
+            const output = await Promise.all(result.map(async (o) => {
+                try {
+                    const metadata = await urlMetadata(o.link);
+                    return {
+                        ...o,
+                        linkTitle: metadata.title,
+                        linkImage: metadata.image,
+                        linkDescription: metadata.description
+                    };
+                } catch (error) {
+                    return error;
+                }
+            }));
+            return output;
+        };
+
+        const sendObj = await createSendObj(posts);
+
+        return res.status(200).send(sendObj);
+
+    } catch (err) {
+        return res.status(422).send(err.message);
+    }
+}
+
+export async function getRecentPosts(req, res) {
+    try {
+        const id = req.params.id;
+
+        const posts = await getRecentsPostsRep(id);
 
         const createSendObj = async (result) => {
             const output = await Promise.all(result.map(async (o) => {
