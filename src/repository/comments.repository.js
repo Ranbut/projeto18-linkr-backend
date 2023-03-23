@@ -22,10 +22,16 @@ export async function getCommentRep(postId) {
 
     try {
         const result = await db.query(
-            `SELECT *
-                FROM comments 
-                WHERE "postId"=$1`
-            , [postId])
+            `SELECT 
+            comments.id AS "commentId", comments."postId", comments."userId", users.username, comments.message,
+            posts."userId" AS "postOwnerId"
+            FROM comments
+            JOIN users
+            ON comments."userId"=users.id
+            JOIN posts
+            ON comments."postId"=posts.id
+            WHERE comments."postId"=$1`
+            , [postId])        
 
         return result
 
