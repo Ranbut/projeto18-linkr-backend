@@ -15,6 +15,7 @@ import userPage from './routes/userPage.routes.js';
 import sessionRefresh from './session.js';
 import likeRoutes from './routes/likes.routes.js';
 import commentRouter from './routes/comments.routes.js';
+import followRouter from './routes/followers.routes.js';
 import shareRouter from './routes/share.routes.js'; 
 
 app.use ([
@@ -24,6 +25,7 @@ app.use ([
     userPage,
     likeRoutes,
     commentRouter,
+    followRouter,
     shareRouter
     ]);
 
