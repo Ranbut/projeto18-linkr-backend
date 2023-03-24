@@ -44,6 +44,34 @@ END;
 $$;
 
 
+--
+-- Name: toggle_share(numeric, numeric); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.toggle_share("post_Id" numeric, "user_Id" numeric) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$DECLARE
+    sharedrow_exists NUMERIC;
+BEGIN
+
+    SELECT 1 
+    INTO sharedrow_exists 
+    FROM "sharedPosts"
+    WHERE "sharedPosts"."postId" = "post_Id" and "sharedPosts"."userId" = "user_Id";
+
+    IF (sharedrow_exists > 0) THEN
+        DELETE FROM "sharedPosts" 
+		WHERE "sharedPosts"."postId" = "post_Id" and "sharedPosts"."userId" = "user_Id";
+        RETURN 0;
+    ELSE
+        INSERT INTO "sharedPosts" ("postId", "userId") 
+		VALUES("post_Id", "user_Id");
+        RETURN 1;
+    END IF;
+
+END;$$;
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -215,7 +243,8 @@ CREATE TABLE public.posts (
     "userId" integer NOT NULL,
     message text NOT NULL,
     link text NOT NULL,
-    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
+    "createdAt" timestamp without time zone DEFAULT now() NOT NULL,
+    "repostUserId" character varying
 );
 
 
@@ -272,6 +301,18 @@ ALTER SEQUENCE public.sessions_id_seq OWNED BY public.sessions.id;
 
 
 --
+-- Name: sharedPosts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."sharedPosts" (
+    id integer NOT NULL,
+    "postId" integer NOT NULL,
+    "userId" integer NOT NULL,
+    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -281,18 +322,6 @@ CREATE TABLE public.users (
     password character varying(80) NOT NULL,
     username character varying(30) NOT NULL,
     "pictureUrl" text NOT NULL,
-    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
-);
-
-
---
--- Name: usersPosts; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."usersPosts" (
-    id integer NOT NULL,
-    "postOwnerId" integer NOT NULL,
-    "userId" integer NOT NULL,
     "createdAt" timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -314,7 +343,7 @@ CREATE SEQUENCE public."usersPosts_id_seq"
 -- Name: usersPosts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public."usersPosts_id_seq" OWNED BY public."usersPosts".id;
+ALTER SEQUENCE public."usersPosts_id_seq" OWNED BY public."sharedPosts".id;
 
 
 --
@@ -400,6 +429,13 @@ ALTER TABLE ONLY public.sessions ALTER COLUMN id SET DEFAULT nextval('public.ses
 
 
 --
+-- Name: sharedPosts id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."sharedPosts" ALTER COLUMN id SET DEFAULT nextval('public."usersPosts_id_seq"'::regclass);
+
+
+--
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -407,58 +443,87 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
--- Name: usersPosts id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."usersPosts" ALTER COLUMN id SET DEFAULT nextval('public."usersPosts_id_seq"'::regclass);
-
-
---
 -- Data for Name: comments; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.comments VALUES (1, 67, 7, '<3', '2023-03-23 22:09:24.433092');
 
 
 --
 -- Data for Name: followers; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.followers VALUES (1, 7, 8, '2023-03-24 07:14:49.130892');
+INSERT INTO public.followers VALUES (2, 6, 8, '2023-03-24 07:14:59.47375');
+INSERT INTO public.followers VALUES (3, 8, 6, '2023-03-24 07:15:10.709489');
+INSERT INTO public.followers VALUES (4, 8, 7, '2023-03-24 07:15:17.635726');
 
 
 --
 -- Data for Name: hashtags; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.hashtags VALUES (93, '#noticias');
+INSERT INTO public.hashtags VALUES (94, '#tech');
+INSERT INTO public.hashtags VALUES (95, '#teste');
+INSERT INTO public.hashtags VALUES (96, '#teste2');
+INSERT INTO public.hashtags VALUES (99, '#hashtag');
+INSERT INTO public.hashtags VALUES (101, '#projeto');
+INSERT INTO public.hashtags VALUES (104, '#esse');
 
 
 --
 -- Data for Name: likes; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.likes VALUES (8, 1, 3, '2023-03-09 19:24:45.806492');
-INSERT INTO public.likes VALUES (11, 2, 4, '2023-03-10 04:14:33.979166');
-INSERT INTO public.likes VALUES (12, 1, 4, '2023-03-10 04:14:37.396187');
-INSERT INTO public.likes VALUES (13, 1, 5, '2023-03-10 04:25:33.21968');
+INSERT INTO public.likes VALUES (15, 68, 7, '2023-03-23 22:09:49.009386');
+INSERT INTO public.likes VALUES (16, 67, 7, '2023-03-23 22:09:50.172648');
+INSERT INTO public.likes VALUES (23, 69, 6, '2023-03-24 00:25:27.766312');
 
 
 --
 -- Data for Name: messagesHashtags; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public."messagesHashtags" VALUES (9, 66, 99);
+INSERT INTO public."messagesHashtags" VALUES (11, 68, 101);
+INSERT INTO public."messagesHashtags" VALUES (12, 69, 101);
+INSERT INTO public."messagesHashtags" VALUES (13, 70, 96);
+INSERT INTO public."messagesHashtags" VALUES (14, 71, 104);
+INSERT INTO public."messagesHashtags" VALUES (15, 72, 101);
+INSERT INTO public."messagesHashtags" VALUES (16, 73, 101);
 
 
 --
 -- Data for Name: posts; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.posts VALUES (1, 3, 'aaaaaaa', 'aaaaa', '2023-09-03 00:00:00');
-INSERT INTO public.posts VALUES (2, 3, 'aaaaaaa', 'aaaaa', '2023-09-03 00:00:00');
+INSERT INTO public.posts VALUES (66, 6, 'meu novo projeto #hashtag', 'https://github.com/drebraga/projeto18-linkr-frontend', '2023-03-23 21:58:38.537732', NULL);
+INSERT INTO public.posts VALUES (68, 6, '#projeto', 'https://github.com/drebraga/projeto18-linkr-frontend', '2023-03-23 21:59:07.350109', NULL);
+INSERT INTO public.posts VALUES (69, 7, '#projeto', 'https://github.com/drebraga/gamestore-front', '2023-03-23 22:00:15.580868', NULL);
+INSERT INTO public.posts VALUES (70, 7, '#teste2', 'https://github.com/drebraga/gamestore-front', '2023-03-23 22:00:22.297204', NULL);
+INSERT INTO public.posts VALUES (67, 6, 'oie', 'https://github.com/drebraga/projeto18-linkr-frontend', '2023-03-23 21:58:52.41295', NULL);
+INSERT INTO public.posts VALUES (71, 8, '#esse tem que aparecer', 'https://github.com/drebraga/projeto18-linkr-frontend', '2023-03-24 06:56:49.558258', NULL);
+INSERT INTO public.posts VALUES (72, 8, 'povoando os dados #projeto', 'https://github.com/drebraga/projeto18-linkr-frontend', '2023-03-24 06:57:27.463672', NULL);
+INSERT INTO public.posts VALUES (73, 6, 'mais um post pra conta #projeto', 'https://github.com/drebraga/projeto18-linkr-frontend', '2023-03-24 06:59:04.51218', NULL);
 
 
 --
 -- Data for Name: sessions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.sessions VALUES (71, 6, '1990bcab-caf6-4cac-9f5d-8c87789ef27e', 1679657728023);
+INSERT INTO public.sessions VALUES (72, 6, '94d3fb79-38c2-4de3-9913-0b5c6328ade3', 1679657875530);
+
+
+--
+-- Data for Name: sharedPosts; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public."sharedPosts" VALUES (13, 70, 6, '2023-03-24 00:30:48.343557');
+INSERT INTO public."sharedPosts" VALUES (14, 67, 6, '2023-03-24 00:30:58.680816');
+INSERT INTO public."sharedPosts" VALUES (15, 67, 7, '2023-03-24 03:09:44.328772');
+INSERT INTO public."sharedPosts" VALUES (16, 67, 8, '2023-03-24 06:58:28.826157');
 
 
 --
@@ -468,75 +533,72 @@ INSERT INTO public.posts VALUES (2, 3, 'aaaaaaa', 'aaaaa', '2023-09-03 00:00:00'
 INSERT INTO public.users VALUES (3, 'email@gmail.com', '$2b$10$kRSu6H.fdAvjwoAf1QUj2OOI.Ma2qCrvtNwHyBwDej8HccGJvKMiS', 'emailkk', 'https://cdn.sstatic.net/Img/teams/teams-illo-free-sidebar-promo.svg?v=47faa659a05e', '2023-03-08 15:08:04.595033');
 INSERT INTO public.users VALUES (4, 'email1@gmail.com', '$2b$10$LKXno7xmWyNNPLka.0guK.XiYsYpbTVMDxd96BTECB1DxAc9ujq5y', 'emailk', 'https://cdn.sstatic.net/Img/teams/teams-illo-free-sidebar-promo.svg?v=47faa659a05e', '2023-03-08 15:08:04.595033');
 INSERT INTO public.users VALUES (5, 'email2@gmail.com', '$2b$10$I2T/kxNP/bGJaGP7BhHhHecyZ4i/qMzTmA5LaGK.rzGbKSLB6TKmG', 'danne', 'https://cdn.sstatic.net/Img/teams/teams-illo-free-sidebar-promo.svg?v=47faa659a05e', '2023-03-08 15:08:04.595033');
-
-
---
--- Data for Name: usersPosts; Type: TABLE DATA; Schema: public; Owner: -
---
-
+INSERT INTO public.users VALUES (6, 'andre@andre.com', '$2b$10$tI6M6Y1V2f8f16wOxTsOZ.XyYtuTVyCH4FYrf.J6/0Q4yIrlvrvjG', 'andre', 'https://img.freepik.com/vetores-premium/homem-perfil-caricatura_18591-58482.jpg?w=2000', '2023-03-22 09:08:42.389447');
+INSERT INTO public.users VALUES (7, 'andre2@andre.com', '$2b$10$//3L06hY5TsoOSzbxqApWOBBgGrQ6Zxl4WA.syVOmRFpLAUwoo7EW', 'andre2', 'https://conteudo.imguol.com.br/blogs/174/files/2018/05/iStock-648229868-1024x909.jpg', '2023-03-23 21:59:50.467859');
+INSERT INTO public.users VALUES (8, 'andre3@andre.com', '$2b$10$Ck.K6eFD0ivKfLq5C5eOaO4tCRrP5xSxI5S2znydD1tbpHrNfPSjW', 'joao', 'https://perfil.napratica.org.br/assets/v2020/testepersonalidade-77d5e996bbe11f2e3429c0bd09753cb6d74d0c8fd29b4840653848a32c93c1da.png', '2023-03-24 06:56:11.634215');
 
 
 --
 -- Name: comments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.comments_id_seq', 1, false);
+SELECT pg_catalog.setval('public.comments_id_seq', 1, true);
 
 
 --
 -- Name: followers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.followers_id_seq', 1, false);
+SELECT pg_catalog.setval('public.followers_id_seq', 4, true);
 
 
 --
 -- Name: hashtags_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.hashtags_id_seq', 92, true);
+SELECT pg_catalog.setval('public.hashtags_id_seq', 106, true);
 
 
 --
 -- Name: likes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.likes_id_seq', 13, true);
+SELECT pg_catalog.setval('public.likes_id_seq', 23, true);
 
 
 --
 -- Name: messagesHashtags_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."messagesHashtags_id_seq"', 2, true);
+SELECT pg_catalog.setval('public."messagesHashtags_id_seq"', 16, true);
 
 
 --
 -- Name: posts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.posts_id_seq', 56, true);
+SELECT pg_catalog.setval('public.posts_id_seq', 73, true);
 
 
 --
 -- Name: sessions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.sessions_id_seq', 6, true);
+SELECT pg_catalog.setval('public.sessions_id_seq', 72, true);
 
 
 --
 -- Name: usersPosts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."usersPosts_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."usersPosts_id_seq"', 16, true);
 
 
 --
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 5, true);
+SELECT pg_catalog.setval('public.users_id_seq', 8, true);
 
 
 --
@@ -620,10 +682,10 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- Name: usersPosts usersPosts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sharedPosts usersPosts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public."usersPosts"
+ALTER TABLE ONLY public."sharedPosts"
     ADD CONSTRAINT "usersPosts_pkey" PRIMARY KEY (id);
 
 
@@ -732,18 +794,18 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- Name: usersPosts usersPosts_postOwnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sharedPosts sharedPosts_postId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public."usersPosts"
-    ADD CONSTRAINT "usersPosts_postOwnerId_fkey" FOREIGN KEY ("postOwnerId") REFERENCES public.users(id);
+ALTER TABLE ONLY public."sharedPosts"
+    ADD CONSTRAINT "sharedPosts_postId_fkey" FOREIGN KEY ("postId") REFERENCES public.posts(id) NOT VALID;
 
 
 --
--- Name: usersPosts usersPosts_postUserId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sharedPosts usersPosts_postUserId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public."usersPosts"
+ALTER TABLE ONLY public."sharedPosts"
     ADD CONSTRAINT "usersPosts_postUserId_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id);
 
 
