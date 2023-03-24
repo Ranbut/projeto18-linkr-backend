@@ -4,12 +4,21 @@ export async function getPostsRep() {
     try {
         const posts = await db.query(`
         SELECT 
-        userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", 
-        message, link, "posts".id
+            userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", 
+            message, link, "posts".id, posts."createdAt", posts."repostUserId" as "repostUserId"
         FROM "posts"
         LEFT JOIN "users" AS userGroup
         ON "posts"."userId" = userGroup."id"
-        ORDER BY posts."createdAt" DESC LIMIT 20;
+        UNION ALL
+        SELECT 
+            u."username", u."pictureUrl", u.id AS "userId", 
+            p."message", p.link, p."id", sp."createdAt", sp."userId" as "repostUserId"
+        FROM posts p
+        INNER JOIN "sharedPosts" sp
+        ON p.id = sp."postId"
+        LEFT JOIN "users" AS u
+        ON p."userId" = u."id"
+        ORDER BY "createdAt" DESC LIMIT 20;
     `);
 
         const result = posts.rows;
