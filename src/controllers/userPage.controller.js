@@ -5,7 +5,6 @@ const id = req.params.id
 const { authorization } = req.headers;
 const token = authorization?.replace("Bearer ", "")
 
-
 const isToken = await db.query(`SELECT "sessions" FROM sessions WHERE token =$1`, [token])
 
 if( isToken.rowCount === 0 ){return res.status(401).send("Não autorizado")}
