@@ -30,7 +30,6 @@ export default function getHashtag() {
             }
 
             res.locals.hashtagsIds = hashtagsIds;
-
             return next();
         } catch (err) {
             return res.status(500).send(err.message);
