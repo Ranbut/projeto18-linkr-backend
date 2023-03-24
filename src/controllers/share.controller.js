@@ -2,13 +2,18 @@ import { db } from "../database/database.connection.js";
 
 export const sharePost = async (req, res) => {
 
-    const { postId, userId } = req.body;
+    const { userId } = res.locals;
+    const postId = req.params.id;
+
+    console.log("rodei")
 
     try {
 
         await db.query(`
-            SELECT toggle_like($1, $2)
+            SELECT toggle_share($1, $2)
         `, [postId, userId]);
+
+        return res.sendStatus(200);
 
     } catch (err) {
         return res.status(500).send(err.message);
@@ -17,7 +22,8 @@ export const sharePost = async (req, res) => {
 
 export const getShareList = async (req, res) => {
 
-    const { postId, userId } = req.body;
+    const { userId } = res.locals
+    const postId = req.params.id;
 
     try {
 
@@ -40,13 +46,15 @@ export const getShareList = async (req, res) => {
         `,
             [userId, postId])
 
-        const userShared = (userShare.rowsCount === 1) ? true : false;
+        const userShared = (userShare.rowCount === 1) ? true : false;
 
         const response = {
             "userId": userId,
             "userSharedThisPost": userShared,
             "shares": query
         }
+
+        return res.send(response);
 
     } catch (err) {
         return res.status(500).send(err.message);
