@@ -15,7 +15,9 @@ if( isToken.rowCount === 0 ){return res.status(401).send("Não autorizado")}
         FROM posts
         JOIN users
         ON posts."userId" = users.id
-        WHERE posts."userId" = $1
+        JOIN followers
+        ON followers."userId" = users.id
+        WHERE followers.userId = $1
         ORDER BY posts."createdAt" DESC LIMIT 20;
     `,[id]);
      
