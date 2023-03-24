@@ -1,29 +1,39 @@
 import { db } from "../database/database.connection.js"
 
-export async function getPostsRep() {
+export async function getPostsRep(userId) {
     try {
-        const posts = await db.query(`
-        SELECT 
-            userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", 
-            message, link, "posts".id, posts."createdAt", posts."repostUserId" as "repostUserId"
-        FROM "posts"
-        LEFT JOIN "users" AS userGroup
-        ON "posts"."userId" = userGroup."id"
-        UNION ALL
-        SELECT 
-            u."username", u."pictureUrl", u.id AS "userId", 
-            p."message", p.link, p."id", sp."createdAt", sp."userId" as "repostUserId"
-        FROM posts p
-        INNER JOIN "sharedPosts" sp
-        ON p.id = sp."postId"
-        LEFT JOIN "users" AS u
-        ON p."userId" = u."id"
-        ORDER BY "createdAt" DESC LIMIT 20;
-    `);
+        const { rows: posts } = await db.query(`
+            SELECT 
+                u.username, u."pictureUrl", u.id AS "userId", 
+                message, link, p.id, p."createdAt", p."repostUserId" as "repostUserName"
+            FROM posts p
+            LEFT JOIN "users" u
+            ON p."userId" = u.id
+            WHERE u.id IN (
+                SELECT "followId" 
+                FROM followers
+                WHERE "userId" = $1
+            ) or p."userId" = $1 or u."username" = p."repostUserId"
+            UNION ALL
+            SELECT 
+                u."username", u."pictureUrl", u.id AS "userId", 
+                p."message", p.link, p."id", sp."createdAt", us."username" as "repostUserName"
+            FROM posts p
+            INNER JOIN "sharedPosts" sp
+            ON p.id = sp."postId"
+            LEFT JOIN "users" AS u
+            ON p."userId" = u."id"
+            LEFT JOIN "users" AS us
+            ON sp."userId" = us."id"
+            WHERE u.id IN (
+                SELECT "followId" 
+                FROM followers
+                WHERE "userId" = $1
+            ) or p."userId" = $1 and u."username" = us."username"
+            ORDER BY "createdAt" DESC LIMIT 20;
+        `, [userId]);
 
-        const result = posts.rows;
-
-        return result;
+        return posts;
 
     } catch (err) {
         return err.message;
