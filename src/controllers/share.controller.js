@@ -60,3 +60,22 @@ export const getShareList = async (req, res) => {
         return res.status(500).send(err.message);
     }
 }
+
+export const getUserName = async (req, res) => {
+
+    const { userId } = req.params;
+
+    try {
+        const { rows: username } = await db.query(`
+            SELECT username
+            FROM users
+            WHERE id = $1
+        `, [userId]);
+
+        return res.send(username[0].username);
+
+    } catch (err) {
+        return res.status(500).send(err.message);
+    }
+
+}
