@@ -1,8 +1,8 @@
 import { db } from "../database/database.connection.js"
-//import RepositoryResponse from "./response.js"
+import RepositoryResponse from "./response.js"
 
  async function insertFollow(userId, followId){
-//    const resp = new RepositoryResponse
+ const resp = new RepositoryResponse
 
     try { return await db.query(`
     INSERT INTO followers ("userId", "followId") VALUES ($1, $2)`, [userId, followId])
@@ -11,7 +11,7 @@ import { db } from "../database/database.connection.js"
 }
 
  async function removeFollow(userId, followId){
-  //   const resp = new RepositoryResponse
+   const resp = new RepositoryResponse
      try {
     await db.query(`
     DELETE FROM followers WHERE "userId"= $1 AND "followId"= $2`, [userId, followId]
@@ -28,9 +28,12 @@ async function verifyFollow(userId, followId){
 
 return toggleFollow.rowCount
 }
+async function getFollowById(userId){
+  const response = await db.query(`SELECT * FROM followers WHERE "userId" = $1`, [userId])
+}
 
 const followRepository = {
-    insertFollow, removeFollow, verifyFollow
+    insertFollow, removeFollow, verifyFollow, getFollowById
 }
 
 export default followRepository;

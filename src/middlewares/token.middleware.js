@@ -11,7 +11,6 @@ export async function tokenValidation(req, res, next) {
         const userId = await db.query(`SELECT "userId" FROM sessions WHERE token =$1`, [token])
         if (userId.rowCount === 0) { return res.status(401).send("Não autorizado") }
 
-console.log(userId,"user")
         res.locals.userId = userId.rows[0].userId
 
 
