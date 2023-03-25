@@ -23,7 +23,6 @@ export async function getPost(req, res) {
             return output;
         };
 
-        console.log(posts.rows,"post");
         const sendObj = await createSendObj(posts);
 
         return res.status(200).send(sendObj);
