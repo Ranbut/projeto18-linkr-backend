@@ -61,6 +61,27 @@ export async function getRecentsPostsRep(postid) {
     }
 }
 
+export async function getOldPostsRep(postid) {
+    try {
+        const posts = await db.query(`
+        SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", 
+        message, link, "posts".id
+        FROM "posts"
+        LEFT JOIN "users" AS userGroup
+        ON "posts"."userId" = userGroup."id"
+        WHERE "posts".id < $1
+        ORDER BY posts."createdAt" DESC LIMIT 10;
+    `, [postid]);
+
+        const result = posts.rows;
+
+        return result;
+
+    } catch (err) {
+        return err.message;
+    }
+}
+
 export async function getPostsUserRep(userId) {
     try {
         const posts = await db.query(`
