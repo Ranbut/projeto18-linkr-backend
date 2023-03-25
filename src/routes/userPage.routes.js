@@ -10,3 +10,5 @@ userPage.post("/get-user", GetUserByToken);
 userPage.get("/get-user/:id", GetUserByID);
 
 export default userPage
+
+

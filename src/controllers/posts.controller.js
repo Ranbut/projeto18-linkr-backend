@@ -68,11 +68,12 @@ export async function getRecentPosts(req, res) {
 export async function getPostsUser(req, res) {
     try {
         const id = req.params.id;
+        const posts = await getPostsUserRep(Number(id));
+        console.log(id, "get", typeof id)
+        console.log(posts,"ppppp")
 
-        const posts = await getPostsUserRep(id);
-
-        const createSendObj = async (result) => {
-            const output = await Promise.all(result.map(async (o) => {
+        const createSendObj = async (posts) => {
+            const output = await Promise.all(posts.map(async (o) => {
                 try {
                     const metadata = await urlMetadata(o.link);
                     return {
@@ -94,7 +95,7 @@ export async function getPostsUser(req, res) {
         res.status(200).send(sendObj);
 
     } catch (err) {
-        res.status(422).send(err.message);
+        res.status(500).send(err.message);
     }
 }
 
