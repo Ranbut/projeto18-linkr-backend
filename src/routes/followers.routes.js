@@ -5,5 +5,5 @@ import {Router} from 'express';
 const followRouter = Router();
 
 followRouter.post("/follow/:followId",tokenValidation, followController.toggleFollow);
-
+followRouter.get("/followers", tokenValidation, followController.getFollowById);
 export default followRouter;
