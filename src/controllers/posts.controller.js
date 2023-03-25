@@ -68,8 +68,6 @@ export async function getPostsUser(req, res) {
     try {
         const id = req.params.id;
         const posts = await getPostsUserRep(Number(id));
-        console.log(id, "get", typeof id)
-        console.log(posts,"ppppp")
 
         const createSendObj = async (posts) => {
             const output = await Promise.all(posts.map(async (o) => {
