@@ -83,6 +83,8 @@ export async function getOldPostsRep(postid) {
 }
 
 export async function getPostsUserRep(userId) {
+    console.log(userId,"getpost", typeof userId)
+    
     try {
         const posts = await db.query(`
         SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", message, link, "posts".id
@@ -91,10 +93,11 @@ export async function getPostsUserRep(userId) {
         ON "posts"."userId" = userGroup."id"
         WHERE userGroup.id = $1
         ORDER BY posts."createdAt" DESC LIMIT 20;
-        `, [userId]).rows;
+        `, [userId]);
 
         const result = posts.rows;
 
+    
         return result;
 
     } catch (err) {
