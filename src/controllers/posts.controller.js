@@ -2,8 +2,9 @@ import urlMetadata from 'url-metadata';
 import { getPostsRep, getPostsUserRep, getPostRep, updateMsgPostRep, deletePostRep, insertPostRep, getRecentsPostsRep, getOldPostsRep } from "../repository/posts.repository.js";
 
 export async function getPost(req, res) {
+    const { userId } = res.locals;
     try {
-        const posts = await getPostsRep();
+        const posts = await getPostsRep(userId);
 
         const createSendObj = async (result) => {
             const output = await Promise.all(result.map(async (o) => {
