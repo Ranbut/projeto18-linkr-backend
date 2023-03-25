@@ -97,7 +97,6 @@ export async function getPostsUserRep(userId) {
 
         const result = posts.rows;
 
-    
         return result;
 
     } catch (err) {
