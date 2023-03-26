@@ -53,7 +53,7 @@ export async function getRecentsPostsRep(userId, createdAt) {
         SELECT "followId" 
         FROM followers
         WHERE "userId" = $1
-    ) OR p."userId" = $1 OR u."username" = p."repostUserId")
+    ) or p."userId" = $1)
     AND p."createdAt" > $2
     UNION ALL
     SELECT 
@@ -66,13 +66,13 @@ export async function getRecentsPostsRep(userId, createdAt) {
     ON p."userId" = u."id"
     LEFT JOIN "users" AS us
     ON sp."userId" = us."id"
-    WHERE (u.id IN (
+    WHERE (us.id IN (
         SELECT "followId" 
         FROM followers
         WHERE "userId" = $1
-    ) OR (p."userId" = $1 AND u."username" = us."username"))
+    ) or sp."userId" = $1)
     AND sp."createdAt" > $2
-    ORDER BY "createdAt" DESC;    
+    ORDER BY "createdAt" DESC;     
     `, [userId, createdAt]);
 
         const result = posts.rows;
@@ -97,7 +97,7 @@ export async function getOldPostsRep(userId, createdAt) {
         SELECT "followId" 
         FROM followers
         WHERE "userId" = $1
-    ) OR p."userId" = $1 OR u."username" = p."repostUserId")
+    ) or p."userId" = $1)
     AND p."createdAt" < $2
     UNION ALL
     SELECT 
@@ -110,14 +110,13 @@ export async function getOldPostsRep(userId, createdAt) {
     ON p."userId" = u."id"
     LEFT JOIN "users" AS us
     ON sp."userId" = us."id"
-    WHERE (u.id IN (
+    WHERE (us.id IN (
         SELECT "followId" 
         FROM followers
         WHERE "userId" = $1
-    ) OR (p."userId" = $1 AND u."username" = us."username"))
+    ) or sp."userId" = $1)
     AND sp."createdAt" < $2
-    ORDER BY "createdAt" DESC 
-    LIMIT 10;    
+    ORDER BY "createdAt" DESC LIMIT 10;  
     `, [userId, createdAt]);
 
         const result = posts.rows;
