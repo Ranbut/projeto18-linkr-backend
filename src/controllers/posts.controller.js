@@ -99,8 +99,7 @@ export async function getOldPosts(req, res) {
 export async function getPostsUser(req, res) {
     try {
         const id = req.params.id;
-        const posts = await getPostsUserRep(Number(id));
-
+        const posts = await getPostsUserRep(id);
         const createSendObj = async (posts) => {
             const output = await Promise.all(posts.map(async (o) => {
                 try {
@@ -117,11 +116,11 @@ export async function getPostsUser(req, res) {
             }));
             return output;
         };
-
-
+        
+        
         const sendObj = await createSendObj(posts);
-
-        res.status(200).send(sendObj);
+        
+       return res.status(200).send(sendObj);
 
     } catch (err) {
         res.status(500).send(err.message);

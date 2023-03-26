@@ -29,7 +29,7 @@ async function verifyFollow(userId, followId){
 return toggleFollow.rowCount
 }
 async function getFollowById(userId){
-  const response = await db.query(`SELECT * FROM followers WHERE "userId" = $1`, [userId])
+ return await db.query(`SELECT "followId" FROM followers WHERE "userId" = $1`, [userId])
 }
 
 const followRepository = {

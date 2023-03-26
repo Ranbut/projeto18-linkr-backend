@@ -6,10 +6,11 @@ async function getFollowById(req, res){
     const userId = res.locals.userId
 
     const response = await followRepository.getFollowById(userId);
-
-    return res.status(200).send(response.rows)
+const filteredResponse = response.rows.map((item) => item.followId)
+    return res.status(200).send(filteredResponse)
 
 }
+
 async function toggleFollow(req, res) {
     const userId = res.locals.userId
     const followId = req.params.followId 
