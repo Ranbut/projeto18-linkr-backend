@@ -34,9 +34,10 @@ export async function getPost(req, res) {
 
 export async function getRecentPosts(req, res) {
     try {
-        const id = req.params.id;
+        const { userId } = res.locals;
+        const { date } = req.params;
 
-        const posts = await getRecentsPostsRep(id);
+        const posts = await getRecentsPostsRep(userId, date);
 
         const createSendObj = async (result) => {
             const output = await Promise.all(result.map(async (o) => {
@@ -66,9 +67,10 @@ export async function getRecentPosts(req, res) {
 
 export async function getOldPosts(req, res) {
     try {
-        const id = req.params.id;
+        const { userId } = res.locals;
+        const { date } = req.params;
 
-        const posts = await getOldPostsRep(id);
+        const posts = await getOldPostsRep(userId, date);
 
         const createSendObj = async (result) => {
             const output = await Promise.all(result.map(async (o) => {

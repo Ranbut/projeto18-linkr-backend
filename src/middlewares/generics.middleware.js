@@ -34,9 +34,9 @@ export async function idSanit(req, res, next) {
 
 export async function authValidation(req, res, next){
     const {authorization} = req.headers
-    
+
     if(!authorization){return res.sendStatus(401)}
-    
+
     if(!authorization.startsWith("Bearer ")){return res.sendStatus(401)}
     
     const token = authorization.replace("Bearer ", "")

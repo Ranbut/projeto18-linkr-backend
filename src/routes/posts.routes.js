@@ -8,8 +8,8 @@ import { authValidation } from '../middlewares/generics.middleware.js';
 const postsRouter = Router();
 
 postsRouter.get("/posts", authValidation, getPost);
-postsRouter.get("/posts/recents/:id", getRecentPosts);
-postsRouter.get("/posts/old/:id", getOldPosts);
+postsRouter.get("/posts/recents/:date", authValidation, getRecentPosts);
+postsRouter.get("/posts/old/:date", authValidation, getOldPosts);
 postsRouter.get("/posts/:id", getPostsUser);
 postsRouter.post("/posts", postPushValidation, checkURL(), getHashtag(), pushPost);
 postsRouter.put("/posts/:id", postPutValidation, getHashtag(), editPost);
