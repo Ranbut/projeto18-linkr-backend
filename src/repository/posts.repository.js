@@ -32,7 +32,7 @@ export async function getPostsRep(userId) {
             ) or sp."userId" = $1
             ORDER BY "createdAt" DESC LIMIT 20;
         `, [userId]);
-        console.log(posts)
+
         return posts;
 
     } catch (err) {
