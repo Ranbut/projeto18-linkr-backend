@@ -2,25 +2,25 @@ import followRepository from "../repository/followers.repository.js";
 import { getUser } from "../repository/auth.repository.js";
 
 
-async function getFollowById(req, res){
+async function getFollowById(req, res) {
     const userId = res.locals.userId
 
     const response = await followRepository.getFollowById(userId);
 
     return res.status(200).send(response.rows)
-
 }
+
 async function toggleFollow(req, res) {
     const userId = res.locals.userId
-    const followId = req.params.followId 
+    const followId = req.params.followId
 
-const followExists = await getUser(followId);
+    const followExists = await getUser(followId);
 
-if(followExists.rowCount === 0){
-return res.sendStatus(404)
-}
+    if (followExists.rowCount === 0) {
+        return res.sendStatus(404)
+    }
 
-    if(+followId === +userId) {
+    if (+followId === +userId) {
         return res.sendStatus(400);
     }
 

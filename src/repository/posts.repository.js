@@ -84,18 +84,16 @@ export async function getOldPostsRep(postid) {
 
 export async function getPostsUserRep(userId) {
     try {
-        const posts = await db.query(`
+        const { rows: posts } = await db.query(`
         SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", message, link, "posts".id
         FROM "posts"
         LEFT JOIN "users" AS userGroup
         ON "posts"."userId" = userGroup."id"
         WHERE userGroup.id = $1
         ORDER BY posts."createdAt" DESC LIMIT 20;
-        `, [userId]).rows;
+        `, [userId]);
 
-        const result = posts.rows;
-
-        return result;
+        return posts;
 
     } catch (err) {
         return err.message;
@@ -156,7 +154,6 @@ export async function updateMsgPostRep(postId, message, hashtagsId) {
         return err.message;
     }
 }
-
 
 export async function deletePostRep(postId) {
     try {
