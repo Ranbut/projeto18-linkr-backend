@@ -83,6 +83,8 @@ export async function getOldPostsRep(postid) {
 }
 
 export async function getPostsUserRep(userId) {
+    console.log(userId,"getpost", typeof userId)
+    
     try {
         const { rows: posts } = await db.query(`
         SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", message, link, "posts".id
