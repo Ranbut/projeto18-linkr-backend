@@ -86,7 +86,7 @@ export async function getPostsUserRep(userId) {
     console.log(userId,"getpost", typeof userId)
     
     try {
-        const posts = await db.query(`
+        const { rows: posts } = await db.query(`
         SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", message, link, "posts".id
         FROM "posts"
         LEFT JOIN "users" AS userGroup
@@ -95,9 +95,7 @@ export async function getPostsUserRep(userId) {
         ORDER BY posts."createdAt" DESC LIMIT 20;
         `, [userId]);
 
-        const result = posts.rows;
-
-        return result;
+        return posts;
 
     } catch (err) {
         return err.message;
@@ -158,7 +156,6 @@ export async function updateMsgPostRep(postId, message, hashtagsId) {
         return err.message;
     }
 }
-
 
 export async function deletePostRep(postId) {
     try {
