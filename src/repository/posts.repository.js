@@ -13,7 +13,7 @@ export async function getPostsRep(userId) {
                 SELECT "followId" 
                 FROM followers
                 WHERE "userId" = $1
-            ) or p."userId" = $1 or u."username" = p."repostUserId"
+            ) or p."userId" = $1
             UNION ALL
             SELECT 
                 u."username", u."pictureUrl", u.id AS "userId", 
@@ -25,14 +25,14 @@ export async function getPostsRep(userId) {
             ON p."userId" = u."id"
             LEFT JOIN "users" AS us
             ON sp."userId" = us."id"
-            WHERE u.id IN (
+            WHERE us.id IN (
                 SELECT "followId" 
                 FROM followers
                 WHERE "userId" = $1
-            ) or p."userId" = $1 and u."username" = us."username"
+            ) or sp."userId" = $1
             ORDER BY "createdAt" DESC LIMIT 20;
         `, [userId]);
-
+        console.log(posts)
         return posts;
 
     } catch (err) {
@@ -129,9 +129,7 @@ export async function getOldPostsRep(userId, createdAt) {
     }
 }
 
-export async function getPostsUserRep(userId) {
-    console.log(userId,"getpost", typeof userId)
-    
+export async function getPostsUserRep(userId) {    
     try {
         const { rows: posts } = await db.query(`
         SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", message, link, "posts".id
