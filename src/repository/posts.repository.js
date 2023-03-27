@@ -150,15 +150,51 @@ export async function getOldPostsRep(userId, createdAt) {
 export async function getPostsUserRep(userId) {
     try {
         const { rows: posts } = await db.query(`
-        SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", message, link, "posts".id
+        SELECT 
+            userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", 
+            message, link, "posts".id, "posts"."createdAt"
         FROM "posts"
         LEFT JOIN "users" AS userGroup
         ON "posts"."userId" = userGroup."id"
         WHERE userGroup.id = $1
-        ORDER BY posts."createdAt" DESC LIMIT 20;
+        ORDER BY posts."createdAt" DESC 
+        LIMIT 20;
         `, [userId]);
 
-        return posts;
+        return posts.map(e => {
+            return {
+                ...e,
+                createdAt: dayjs(e.createdAt).format()
+            }
+        })
+        // return posts;
+
+    } catch (err) {
+        return err.message;
+    }
+}
+
+export async function getOldPostsUserRep(userId, createdAt) {
+    try {
+        const { rows: posts } = await db.query(`
+        SELECT 
+            userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", 
+            message, link, "posts".id, "posts"."createdAt"
+        FROM "posts"
+        LEFT JOIN "users" AS userGroup
+        ON "posts"."userId" = userGroup."id"
+        WHERE userGroup.id = $1 AND "posts"."createdAt" < $2
+        ORDER BY posts."createdAt" DESC 
+        LIMIT 10;
+        `, [userId, createdAt]);
+
+        return posts.map(e => {
+            return {
+                ...e,
+                createdAt: dayjs(e.createdAt).format()
+            }
+        })
+        // return posts;
 
     } catch (err) {
         return err.message;
@@ -238,6 +274,31 @@ export async function deletePostRep(postId) {
         `, [postId]);
         return;
 
+    } catch (err) {
+        return err.message;
+    }
+}
+
+export async function getOldPostsHashtagRep(hashtag, createdAt) {
+    try {
+        const { rows: posts } = await db.query(`
+        SELECT 
+            userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", 
+            message, link, "posts".id, "posts"."createdAt"
+        FROM "posts"
+            LEFT JOIN "users" AS userGroup
+            ON "posts"."userId" = userGroup."id"
+            WHERE "posts".message LIKE $1 AND "posts"."createdAt" < $2
+            ORDER BY posts."createdAt" DESC
+            LIMIT 10;
+        `, [hashtag, createdAt]);
+
+        return posts.map(e => {
+            return {
+                ...e,
+                createdAt: dayjs(e.createdAt).format()
+            }
+        })
     } catch (err) {
         return err.message;
     }

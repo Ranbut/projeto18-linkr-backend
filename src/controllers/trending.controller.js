@@ -27,12 +27,13 @@ export async function getPostByHashtag(req, res) {
         const { rows: posts } = await db.query(`
         SELECT 
             userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", 
-            message, link, "posts".id
+            message, link, "posts".id, "posts"."createdAt"
         FROM "posts"
             LEFT JOIN "users" AS userGroup
             ON "posts"."userId" = userGroup."id"
             WHERE "posts".message LIKE $1
             ORDER BY posts."createdAt" DESC
+            LIMIT 20;
         `, [hashtag]);
 
         const createSendObj = async () => {
