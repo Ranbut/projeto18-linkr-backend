@@ -31,7 +31,7 @@ export async function getPostsRep(userId) {
                 FROM followers
                 WHERE "userId" = $1
             ) or sp."userId" = $1
-            ORDER BY "createdAt" DESC LIMIT 20;
+            ORDER BY "createdAt" DESC LIMIT 10;
         `, [userId]);
         return posts.map(e => {
             return {
@@ -158,7 +158,7 @@ export async function getPostsUserRep(userId) {
         ON "posts"."userId" = userGroup."id"
         WHERE userGroup.id = $1
         ORDER BY posts."createdAt" DESC 
-        LIMIT 20;
+        LIMIT 10;
         `, [userId]);
 
         return posts.map(e => {
