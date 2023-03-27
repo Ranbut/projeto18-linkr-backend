@@ -1,5 +1,10 @@
 import urlMetadata from 'url-metadata';
-import { getPostsRep, getPostsUserRep, getPostRep, updateMsgPostRep, deletePostRep, insertPostRep, getRecentsPostsRep, getOldPostsRep } from "../repository/posts.repository.js";
+import {
+    getPostsRep, getPostsUserRep, getPostRep,
+    updateMsgPostRep, deletePostRep, insertPostRep,
+    getRecentsPostsRep, getOldPostsRep, getOldPostsUserRep,
+    getOldPostsHashtagRep
+} from "../repository/posts.repository.js";
 import dayjs from "dayjs";
 
 export async function getPost(req, res) {
@@ -119,14 +124,46 @@ export async function getPostsUser(req, res) {
             }));
             return output;
         };
-        
-        
+
+
         const sendObj = await createSendObj(posts);
-        
-       return res.status(200).send(sendObj);
+
+        return res.status(200).send(sendObj);
 
     } catch (err) {
         res.status(500).send(err.message);
+    }
+}
+
+export async function getOldPostsUser(req, res) {
+    try {
+        const userId = req.params.id;
+        const { date } = req.params;
+
+        const posts = await getOldPostsUserRep(userId, date);
+
+        const createSendObj = async (result) => {
+            const output = await Promise.all(result.map(async (o) => {
+                try {
+                    const metadata = await urlMetadata(o.link);
+                    return {
+                        ...o,
+                        linkTitle: metadata.title,
+                        linkImage: metadata.image,
+                        linkDescription: metadata.description
+                    };
+                } catch (error) {
+                    return error;
+                }
+            }));
+            return output;
+        };
+        const sendObj = await createSendObj(posts);
+
+        return res.status(200).send(sendObj);
+
+    } catch (err) {
+        return res.status(422).send(err.message);
     }
 }
 
@@ -179,5 +216,39 @@ export async function deletePost(req, res) {
     }
     catch (err) {
         res.status(500).send(err.message);
+    }
+}
+
+export async function getOldPostsHashtag(req, res) {
+    try {
+        const { date, hashtag } = req.params;
+
+        console.log(hashtag, date)
+
+        const posts = await getOldPostsHashtagRep(hashtag, date);
+
+        const createSendObj = async (result) => {
+            const output = await Promise.all(result.map(async (o) => {
+                try {
+                    const metadata = await urlMetadata(o.link);
+                    return {
+                        ...o,
+                        linkTitle: metadata.title,
+                        linkImage: metadata.image,
+                        linkDescription: metadata.description
+                    };
+                } catch (error) {
+                    return error;
+                }
+            }));
+            return output;
+        };
+        console.log(posts)
+        const sendObj = await createSendObj(posts);
+
+        return res.status(200).send(sendObj);
+
+    } catch (err) {
+        return res.status(422).send(err.message);
     }
 }
