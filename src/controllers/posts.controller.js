@@ -1,5 +1,6 @@
 import urlMetadata from 'url-metadata';
 import { getPostsRep, getPostsUserRep, getPostRep, updateMsgPostRep, deletePostRep, insertPostRep, getRecentsPostsRep, getOldPostsRep } from "../repository/posts.repository.js";
+import dayjs from "dayjs";
 
 export async function getPost(req, res) {
     const { userId } = res.locals;
@@ -35,7 +36,7 @@ export async function getPost(req, res) {
 export async function getRecentPosts(req, res) {
     try {
         const { userId } = res.locals;
-        const { date } = req.params;
+        const date = dayjs(req.params.date).add(1, "s").format();
 
         const posts = await getRecentsPostsRep(userId, date);
 

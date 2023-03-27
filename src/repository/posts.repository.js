@@ -54,11 +54,11 @@ export async function getRecentsPostsRep(userId, createdAt) {
             FROM posts p
             LEFT JOIN "users" u
             ON p."userId" = u.id
-            WHERE (u.id IN (
+            WHERE u.id IN (
                 SELECT "followId" 
                 FROM followers
                 WHERE "userId" = $1
-            ) or p."userId" = $1)
+            ) 
             AND p."createdAt" > $2
             UNION ALL
             SELECT 
