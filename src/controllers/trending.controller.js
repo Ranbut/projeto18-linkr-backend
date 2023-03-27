@@ -33,7 +33,7 @@ export async function getPostByHashtag(req, res) {
             ON "posts"."userId" = userGroup."id"
             WHERE "posts".message LIKE $1
             ORDER BY posts."createdAt" DESC
-            LIMIT 20;
+            LIMIT 10;
         `, [hashtag]);
 
         const createSendObj = async () => {
