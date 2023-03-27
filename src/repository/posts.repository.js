@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { db } from "../database/database.connection.js"
 
 export async function getPostsRep(userId) {
@@ -32,8 +33,12 @@ export async function getPostsRep(userId) {
             ) or sp."userId" = $1
             ORDER BY "createdAt" DESC LIMIT 20;
         `, [userId]);
-
-        return posts;
+        return posts.map(e => {
+            return {
+                ...e,
+                createdAt: dayjs(e.createdAt).format()
+            }
+        })
 
     } catch (err) {
         return err.message;
@@ -43,41 +48,46 @@ export async function getPostsRep(userId) {
 export async function getRecentsPostsRep(userId, createdAt) {
     try {
         const posts = await db.query(`
-        SELECT 
-        u.username, u."pictureUrl", u.id AS "userId", 
-        message, link, p.id, p."createdAt", p."repostUserId" as "repostUserName"
-    FROM posts p
-    LEFT JOIN "users" u
-    ON p."userId" = u.id
-    WHERE (u.id IN (
-        SELECT "followId" 
-        FROM followers
-        WHERE "userId" = $1
-    ) or p."userId" = $1)
-    AND p."createdAt" > $2
-    UNION ALL
-    SELECT 
-        u."username", u."pictureUrl", u.id AS "userId", 
-        p."message", p.link, p."id", sp."createdAt", us."username" as "repostUserName"
-    FROM posts p
-    INNER JOIN "sharedPosts" sp
-    ON p.id = sp."postId"
-    LEFT JOIN "users" AS u
-    ON p."userId" = u."id"
-    LEFT JOIN "users" AS us
-    ON sp."userId" = us."id"
-    WHERE (us.id IN (
-        SELECT "followId" 
-        FROM followers
-        WHERE "userId" = $1
-    ) or sp."userId" = $1)
-    AND sp."createdAt" > $2
-    ORDER BY "createdAt" DESC;     
+            SELECT 
+                u.username, u."pictureUrl", u.id AS "userId", 
+                message, link, p.id, p."createdAt", p."repostUserId" as "repostUserName"
+            FROM posts p
+            LEFT JOIN "users" u
+            ON p."userId" = u.id
+            WHERE (u.id IN (
+                SELECT "followId" 
+                FROM followers
+                WHERE "userId" = $1
+            ) or p."userId" = $1)
+            AND p."createdAt" > $2
+            UNION ALL
+            SELECT 
+                u."username", u."pictureUrl", u.id AS "userId", 
+                p."message", p.link, p."id", sp."createdAt", us."username" as "repostUserName"
+            FROM posts p
+            INNER JOIN "sharedPosts" sp
+            ON p.id = sp."postId"
+            LEFT JOIN "users" AS u
+            ON p."userId" = u."id"
+            LEFT JOIN "users" AS us
+            ON sp."userId" = us."id"
+            WHERE (us.id IN (
+                SELECT "followId" 
+                FROM followers
+                WHERE "userId" = $1
+            ) or sp."userId" = $1)
+            AND sp."createdAt" > $2
+            ORDER BY "createdAt" DESC;     
     `, [userId, createdAt]);
 
         const result = posts.rows;
 
-        return result;
+        return result.map(e => {
+            return {
+                ...e,
+                createdAt: dayjs(e.createdAt).format()
+            }
+        })
 
     } catch (err) {
         return err.message;
@@ -85,50 +95,59 @@ export async function getRecentsPostsRep(userId, createdAt) {
 }
 
 export async function getOldPostsRep(userId, createdAt) {
+    console.log(createdAt)
     try {
         const posts = await db.query(`
-        SELECT 
-        u.username, u."pictureUrl", u.id AS "userId", 
-        message, link, p.id, p."createdAt", p."repostUserId" as "repostUserName"
-    FROM posts p
-    LEFT JOIN "users" u
-    ON p."userId" = u.id
-    WHERE (u.id IN (
-        SELECT "followId" 
-        FROM followers
-        WHERE "userId" = $1
-    ) or p."userId" = $1)
-    AND p."createdAt" < $2
-    UNION ALL
-    SELECT 
-        u."username", u."pictureUrl", u.id AS "userId", 
-        p."message", p.link, p."id", sp."createdAt", us."username" as "repostUserName"
-    FROM posts p
-    INNER JOIN "sharedPosts" sp
-    ON p.id = sp."postId"
-    LEFT JOIN "users" AS u
-    ON p."userId" = u."id"
-    LEFT JOIN "users" AS us
-    ON sp."userId" = us."id"
-    WHERE (us.id IN (
-        SELECT "followId" 
-        FROM followers
-        WHERE "userId" = $1
-    ) or sp."userId" = $1)
-    AND sp."createdAt" < $2
-    ORDER BY "createdAt" DESC LIMIT 10;  
+            SELECT 
+                u.username, u."pictureUrl", u.id AS "userId", 
+                message, link, p.id, p."createdAt", p."repostUserId" as "repostUserName"
+            FROM posts p
+            LEFT JOIN "users" u
+            ON p."userId" = u.id
+            WHERE (u.id IN (
+                SELECT "followId" 
+                FROM followers
+                WHERE "userId" = $1
+            ) or p."userId" = $1)
+            AND p."createdAt" < $2
+            UNION ALL
+            SELECT 
+                u."username", u."pictureUrl", u.id AS "userId", 
+                p."message", p.link, p."id", sp."createdAt", us."username" as "repostUserName"
+            FROM posts p
+            INNER JOIN "sharedPosts" sp
+            ON p.id = sp."postId"
+            LEFT JOIN "users" AS u
+            ON p."userId" = u."id"
+            LEFT JOIN "users" AS us
+            ON sp."userId" = us."id"
+            WHERE (us.id IN (
+                SELECT "followId" 
+                FROM followers
+                WHERE "userId" = $1
+            ) or sp."userId" = $1)
+            AND sp."createdAt" < $2
+            ORDER BY "createdAt" DESC 
+            LIMIT 10;
     `, [userId, createdAt]);
 
         const result = posts.rows;
 
-        return result;
+        return result.map(e => {
+            return {
+                ...e,
+                createdAt: dayjs(e.createdAt).format()
+            }
+        })
+
+        // return result;
 
     } catch (err) {
         return err.message;
     }
 }
 
-export async function getPostsUserRep(userId) {    
+export async function getPostsUserRep(userId) {
     try {
         const { rows: posts } = await db.query(`
         SELECT userGroup."username", userGroup."pictureUrl", userGroup.id AS "userId", message, link, "posts".id
